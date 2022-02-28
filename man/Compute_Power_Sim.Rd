@@ -2,7 +2,7 @@
 % Please edit documentation in R/functions.R
 \name{Compute_Power_Sim}
 \alias{Compute_Power_Sim}
-\title{Compute the Power of an association study, at a given sample size.}
+\title{Compute the Power of an association study, at a given sample size, using the semi-simulation method}
 \usage{
 Compute_Power_Sim(
   parameters,
@@ -13,7 +13,9 @@ Compute_Power_Sim(
   mode = "additive",
   alpha = 0.05,
   seed = 123,
-  LargePowerApproxi = F
+  LargePowerApproxi = F,
+  searchSizeGamma0 = 8,
+  searchSizeBeta0 = 8
 )
 }
 \arguments{
@@ -36,12 +38,16 @@ its mean and standard deviation. The MAF is defined as "pG", with HWE assumed to
 \item{seed}{An integer number that indicates the seed used for the simulation to compute the approximate fisher information matrix, by default is 123.}
 
 \item{LargePowerApproxi}{TRUE or FALSE indicates whether to use the large power approximation formula.}
+
+\item{searchSizeGamma0}{The interval radius for the numerical search of gamma0, by default is 8. Setting to higher values may solve some numerical problems at the cost of longer runtime.}
+
+\item{searchSizeBeta0}{The interval radius for the numerical search of beta0, by default is 8. Setting to higher values may solve some numerical problems at the cost of longer runtime.}
 }
 \value{
-The power that can be ahieved at the given sample size.
+The power that can be achieved at the given sample size.
 }
 \description{
-Compute the Power of an association study, at a given sample size.
+Compute the Power of an association study, at a given sample size, using the semi-simulation method
 }
 \examples{
 parameters <- list(TraitMean = 0.3, TraitSD = 1, pG = 0.2, betaG = log(1.1), betaE = log(1.1), muE = 0, sigmaE = 3, gammaG = log(2.1))

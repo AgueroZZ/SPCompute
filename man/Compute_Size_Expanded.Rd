@@ -13,7 +13,9 @@ Compute_Size_Expanded(
   alpha = 0.05,
   seed = 123,
   LargePowerApproxi = F,
-  upper.lim.n = 8e+05
+  upper.lim.n = 8e+05,
+  searchSizeGamma0 = 8,
+  searchSizeBeta0 = 8
 )
 }
 \arguments{
@@ -32,6 +34,10 @@ its mean and standard deviation. The MAF is defined as "pG", with HWE assumed to
 \item{alpha}{A numeric value that denotes the significance level used in the study, by default is 0.05.}
 
 \item{upper.lim.n}{An integer number that indicates the largest sample size to be considered.}
+
+\item{searchSizeGamma0}{The interval radius for the numerical search of gamma0, by default is 8. Setting to higher values may solve some numerical problems at the cost of longer runtime.}
+
+\item{searchSizeBeta0}{The interval radius for the numerical search of beta0, by default is 8. Setting to higher values may solve some numerical problems at the cost of longer runtime.}
 }
 \value{
 The sample size required to achieve the aimed power.
