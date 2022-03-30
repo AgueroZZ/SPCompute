@@ -5,10 +5,12 @@ Title: Compute Power or Sample Size for GWAS, that Accounts the
 Version: 1.0.1
 Author: Ziang Zhang
 Maintainer: Ziang Zhang <aguero.zhang@mail.utoronto.ca>
-Description: This Rpackage implements the algorithms described
-    in the corresponding paper, to compute required sample size or
+Description: This R package computes required sample size or
     achieved power, for GWAS studies with different types of covariate
     effects and different types of covariate-gene dependency structure.
+    For the detailed description of the methodology, see Zhang (2022).
+    "Power and Sample Size Computation for Genetic Association Studies
+     of Binary Traits: Accounting for Covariate Effects" <arXiv:2203.15641>
 License: GPL (>= 3)
 Imports: 
     Matrix,
