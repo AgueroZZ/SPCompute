@@ -13,10 +13,11 @@ Compute_Size(
   alpha = 0.05,
   seed = 123,
   LargePowerApproxi = F,
-  searchSizeGamma0 = 8,
-  searchSizeBeta0 = 8,
+  searchSizeGamma0 = 100,
+  searchSizeBeta0 = 100,
   B = 10000,
   method = "semi-sim",
+  lower.lim.n = 1000,
   upper.lim.n = 8e+05
 )
 }
@@ -47,6 +48,8 @@ its mean and standard deviation. The MAF is defined as "pG", with HWE assumed to
 
 \item{method}{An character that is either "semi-sim" (default) or "expand" using the idea of representative dataset. This specifies the method being used to compute the power/sample size when the trait is binary using logistic regression. The default method will be faster for large sample size computation.}
 
+\item{lower.lim.n}{An integer number that indicates the smallest sample size to be considered, only for "expand" method.}
+
 \item{upper.lim.n}{An integer number that indicates the largest sample size to be considered.}
 }
 \value{
@@ -56,11 +59,9 @@ The required sample size.
 Compute the sample size of an association study, to achieve a target power.
 }
 \examples{
-parameters <- list(TraitMean = 0.3, TraitSD = 1, pG = 0.2, betaG = log(1.1), betaE = log(1.1), muE = 0, sigmaE = 3, gammaG = log(2.1))
-Compute_Size(parameters, PowerAim = 0.8, "continuous", "continuous", method = "semi-sim")
-parameters <- list(beta0 = 0.3, ResidualSD = 1, pG = 0.2, betaG = log(1.1), betaE = log(1.1), muE = 0, sigmaE = 3, gammaG = log(2.1))
-Compute_Size(parameters, PowerAim = 0.8, "continuous", "continuous", method = "expand")
-parameters <- list(preva = 0.1, pG = 0.2, betaG = log(1.1), betaE = log(1.1), muE = 0, sigmaE = 3, gammaG = log(2.1))
-Compute_Size(parameters, PowerAim = 0.8, response ="binary", "continuous", method = "expand")
-Compute_Size(parameters, PowerAim = 0.8, response ="binary", "continuous", method = "semi-sim")
+parameters <- list(TraitMean = 0.3, TraitSD = 1, pG = 0.2, betaG = log(1.1),
+betaE = log(1.1), muE = 0, sigmaE = 3, gammaG = log(2.1))
+
+Compute_Size(parameters, PowerAim = 0.8, response = "continuous",
+covariate = "continuous", method = "semi-sim")
 }

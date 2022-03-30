@@ -16,12 +16,14 @@ check_parameters(parameters, response, covariate)
 \item{covariate}{A string of either "binary", "continuous" or "none" indicating the type of covariate E in the model.}
 }
 \value{
-TRUE or FASLE if all the parameters are correctly defined.
+TRUE or FALSE if all the parameters are correctly defined.
 }
 \description{
 Check if the parameter list contains all the parameters required for the computation.
 }
 \examples{
-parameters <- list(TraitMean = 0.3, TraitSD = 1, pG = 0.2, betaG = log(1.1), betaE = log(1.1), muE = 0, sigmaE = 3, gammaG = log(2.1))
-check_parameters(parameters, "continuous", "continuous")
+parameters <- list(TraitMean = 0.3, TraitSD = 1, pG = 0.2, betaG = log(1.1),
+betaE = log(1.1), muE = 0, sigmaE = 3, gammaG = log(2.1))
+
+SPCompute::check_parameters(parameters, "continuous", "continuous")
 }

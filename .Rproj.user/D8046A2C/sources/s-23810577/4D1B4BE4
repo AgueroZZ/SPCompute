@@ -1,0 +1,24 @@
+{
+    "id": "4D1B4BE4",
+    "path": "D:/SPCompute/R/functions.R",
+    "project_path": "R/functions.R",
+    "type": "r_source",
+    "hash": "2587021775",
+    "contents": "",
+    "dirty": false,
+    "created": 1648655829258.0,
+    "source_on_save": false,
+    "relative_order": 1,
+    "properties": {
+        "cursorPosition": "3,156",
+        "scrollLine": "0"
+    },
+    "folds": "37|9|46|4|\n134|57|137|6|\n138|67|141|6|\n151|29|202|6|\n153|50|161|8|\n163|71|173|8|\n178|24|186|8|\n207|50|215|8|\n1225|238|2292|0|\n2319|208|3400|0|\n3430|221|3446|0|\n3471|203|3481|0|\n3516|231|3526|0|\n3559|279|3569|0|\n",
+    "lastKnownWriteTime": 1648664091,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1648664091983,
+    "read_only": false,
+    "read_only_alternatives": []
+}
