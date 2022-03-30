@@ -7,7 +7,7 @@
 check_parameters(parameters, response, covariate)
 }
 \arguments{
-\item{parameters}{A list of parameters that contains all the required parameters in the model. If response is "binary", this list needs to contain "prev" which denotes the prevalence of the disease (or case to control ratio for case-control sampling). If response is continuous, the list needs to contain "traitSD" and "traitMean" which represent the standard deviation and mean of the continuous trait.
+\item{parameters}{A list of parameters that contains all the required parameters in the model. If response is "binary", this list needs to contain "preva" which denotes the prevalence of the disease (or case to control ratio for case-control sampling). If response is continuous, the list needs to contain "TraitSD" and "TraitMean" which represent the standard deviation and mean of the continuous trait.
 #' If covariate is not "none", a parameter "gammaG" needs to be defined to capture the dependence between the SNP and the covariate (through linear regression model if covariate is continuous, and logistic model if covariate is binary). If covariate is "binary", list needs to contains "pE" that defines the frequency of the covariate. If it is continuous, list needs to contain "muE" and "sigmaE" to define
 #' its mean and standard deviation. The MAF is defined as "pG", with HWE assumed to hold.}
 

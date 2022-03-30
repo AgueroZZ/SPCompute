@@ -127,6 +127,7 @@ check_parameters <- function(parameters, response, covariate){
 #' parameters <- list(TraitMean = 0.3, TraitSD = 1, pG = 0.2, betaG = log(1.1), betaE = log(1.1),
 #' muE = 0, sigmaE = 3, gammaG = log(2.1))
 #' SPCompute:::Compute_Power_Sim(parameters, n = 1000, B = 10000, "continuous", "continuous")
+#' @noRd
 Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", covariate = "binary", mode = "additive", alpha = 0.05, seed = 123, LargePowerApproxi = F, searchSizeGamma0 = 8, searchSizeBeta0 = 8){
   if(check_parameters(parameters, response, covariate) != T){return(message("Define the above missing parameters before continuing"))}
   if(response == "binary"){
@@ -1223,6 +1224,7 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
 #' parameters <- list(TraitMean = 0.3, TraitSD = 1, pG = 0.2, betaG = log(1.1),
 #' betaE = log(1.1), muE = 0, sigmaE = 3, gammaG = log(2.1))
 #' SPCompute:::Compute_Size_Sim(parameters, PowerAim = 0.8, B = 10000, "continuous", "continuous")
+#' @noRd
 Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary", covariate = "binary", mode = "additive", alpha = 0.05, seed = 123, LargePowerApproxi = F, upper.lim.n = 800000, searchSizeGamma0 = 8, searchSizeBeta0 = 8){
   if(check_parameters(parameters, response, covariate) != T){return(message("Define the above missing parameters before continuing"))}
   if(response == "binary"){
@@ -2317,6 +2319,7 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
 #' parameters <- list(TraitMean = 0.3, TraitSD = 1, pG = 0.2, betaG = log(1.1), betaE = log(1.1),
 #' muE = 0, sigmaE = 3, gammaG = log(2.1))
 #' SPCompute:::Compute_Power_Expanded(parameters, n = 1000, "continuous", "continuous")
+#' @noRd
 Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate = "binary", mode = "additive", alpha = 0.05, seed = 123, LargePowerApproxi = F, searchSizeGamma0 = 100, searchSizeBeta0 = 100){
   if(check_parameters(parameters, response, covariate) != T){return(message("Define the above missing parameters before continuing"))}
   if(response == "binary"){
@@ -3427,7 +3430,7 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
 #' muE = 0, sigmaE = 3, gammaG = log(2.1))
 #' SPCompute:::Compute_Size_Expanded(parameters, PowerAim = 0.8, response = "continuous",
 #' covariate = "continuous", mode = "additive")
-
+#' @noRd
 Compute_Size_Expanded <- function(parameters, PowerAim, response, covariate, mode, alpha = 0.05, seed = 123, LargePowerApproxi = F, lower.lim.n = 1000, upper.lim.n = 800000, searchSizeGamma0 = 100, searchSizeBeta0 = 100){
   if(check_parameters(parameters, response, covariate) != T){return(message("Define the above missing parameters before continuing"))}
   compute_power_diff <- function(n){
@@ -3469,6 +3472,7 @@ Compute_Size_Expanded <- function(parameters, PowerAim, response, covariate, mod
 #' betaE = log(1.1), muE = 0, sigmaE = 3, gammaG = log(2.1))
 #' SPCompute:::Compute_Size_Sim_simpler(parameters, PowerAim = 0.8,
 #' B = 10000, "continuous", "continuous")
+#' @noRd
 Compute_Size_Sim_simpler <- function(parameters, PowerAim, B = 10000, response = "binary", covariate = "binary", mode = "additive", alpha = 0.05, seed = 123, LargePowerApproxi = F, upper.lim.n = 800000){
   if(check_parameters(parameters, response, covariate) != T){return(message("Define the above missing parameters before continuing"))}
   if(check_parameters(parameters, response, covariate) != T){return(message("Define the above missing parameters before continuing"))}
