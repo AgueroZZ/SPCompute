@@ -1,15 +1,23 @@
-Package: SPCompute
 Type: Package
-Title: Compute power or sample size for GWAS, that accounts the covariate effect under different scenarios.
-Version: 0.1.2
+Package: SPCompute
+Title: Compute Power or Sample Size for GWAS, that Accounts the Covariate Effect under Different Scenarios
+Version: 1.0.0
 Author: Ziang Zhang
 Maintainer: Ziang Zhang <aguero.zhang@mail.utoronto.ca>
-Description: This Rpackage implements the algorithms described in the corresponding paper, to compute required sample size or achieved power, for GWAS studies with different types of covariate effects and different types of covariate-gene dependency structure.
-License: file LICENSE
+Description: This Rpackage implements the algorithms described
+    in the corresponding paper, to compute required sample size or
+    achieved power, for GWAS studies with different types of covariate
+    effects and different types of covariate-gene dependency structure.
+License: GPL (>= 3)
+Imports: 
+    Matrix,
+    stats
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat
+VignetteBuilder: 
+    knitr
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
-Suggests: 
-    knitr,
-    rmarkdown
-VignetteBuilder: knitr

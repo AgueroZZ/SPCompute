@@ -13,8 +13,8 @@ Compute_Power_Expanded(
   alpha = 0.05,
   seed = 123,
   LargePowerApproxi = F,
-  searchSizeGamma0 = 8,
-  searchSizeBeta0 = 8
+  searchSizeGamma0 = 100,
+  searchSizeBeta0 = 100
 )
 }
 \arguments{
@@ -47,6 +47,7 @@ The power that can be achieved at the given sample size.
 Compute the Power of an association study, at a given sample size，using the idea of expanded dataset
 }
 \examples{
-parameters <- list(TraitMean = 0.3, TraitSD = 1, pG = 0.2, betaG = log(1.1), betaE = log(1.1), muE = 0, sigmaE = 3, gammaG = log(2.1))
-Compute_Power_Expanded(parameters, n = 1000, "continuous", "continuous")
+parameters <- list(TraitMean = 0.3, TraitSD = 1, pG = 0.2, betaG = log(1.1), betaE = log(1.1),
+muE = 0, sigmaE = 3, gammaG = log(2.1))
+SPCompute:::Compute_Power_Expanded(parameters, n = 1000, "continuous", "continuous")
 }
