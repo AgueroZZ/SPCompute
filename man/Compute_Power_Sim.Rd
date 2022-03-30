@@ -50,7 +50,6 @@ The power that can be achieved at the given sample size.
 Compute the Power of an association study, at a given sample size, using the semi-simulation method
 }
 \examples{
-parameters <- list(TraitMean = 0.3, TraitSD = 1, pG = 0.2, betaG = log(1.1), betaE = log(1.1),
-muE = 0, sigmaE = 3, gammaG = log(2.1))
-SPCompute:::Compute_Power_Sim(parameters, n = 1000, B = 10000, "continuous", "continuous")
+parameters <- list(TraitMean = 0.3, TraitSD = 1, pG = 0.2, betaG = log(1.1), betaE = log(1.1), muE = 0, sigmaE = 3, gammaG = log(2.1))
+Compute_Power_Sim(parameters, n = 1000, B = 10000, "continuous", "continuous")
 }

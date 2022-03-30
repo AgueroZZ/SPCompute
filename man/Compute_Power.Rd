@@ -13,8 +13,8 @@ Compute_Power(
   alpha = 0.05,
   seed = 123,
   LargePowerApproxi = F,
-  searchSizeGamma0 = 100,
-  searchSizeBeta0 = 100,
+  searchSizeGamma0 = 8,
+  searchSizeBeta0 = 8,
   B = 10000,
   method = "semi-sim"
 )
@@ -53,9 +53,8 @@ The power that can be achieved at the given sample size.
 Compute the Power of an association study, at a given sample size.
 }
 \examples{
-parameters <- list(TraitMean = 0.3, TraitSD = 1, pG = 0.2, betaG = log(1.1),
-betaE = log(1.1), muE = 0, sigmaE = 3, gammaG = log(2.1))
-
-Compute_Power(parameters, n = 1000, response = "continuous",
-covariate = "continuous", method = "semi-sim")
+parameters <- list(TraitMean = 0.3, TraitSD = 1, pG = 0.2, betaG = log(1.1), betaE = log(1.1), muE = 0, sigmaE = 3, gammaG = log(2.1))
+Compute_Power(parameters, n = 1000, "continuous", "continuous", method = "sim")
+parameters <- list(preva = 0.1, pG = 0.2, betaG = log(1.1), betaE = log(1.1), muE = 0, sigmaE = 3, gammaG = log(2.1))
+Compute_Power(parameters, n = 1000, response ="binary", "continuous", method = "expand")
 }

@@ -13,10 +13,9 @@ Compute_Size_Expanded(
   alpha = 0.05,
   seed = 123,
   LargePowerApproxi = F,
-  lower.lim.n = 1000,
   upper.lim.n = 8e+05,
-  searchSizeGamma0 = 100,
-  searchSizeBeta0 = 100
+  searchSizeGamma0 = 8,
+  searchSizeBeta0 = 8
 )
 }
 \arguments{
@@ -26,19 +25,13 @@ its mean and standard deviation. The MAF is defined as "pG", with HWE assumed to
 
 \item{PowerAim}{An numeric value between 0 and 1 that indicates the aimed power of the study.}
 
-\item{response}{A string of either "binary" or "continuous", indicating the type of response/trait variable in the model, by default is "binary"}
+\item{response}{A string of either "binary" or "continuous", indicating the type of respone/trait variable in the model, by default is "binary"}
 
 \item{covariate}{A string of either "binary", "continuous" or "none" indicating the type of covariate E in the model, by default is "binary".}
 
 \item{mode}{A string of either "additive", "dominant" or "recessive", indicating the genetic mode, by default is "additive".}
 
 \item{alpha}{A numeric value that denotes the significance level used in the study, by default is 0.05.}
-
-\item{seed}{An integer number that indicates the seed used for the simulation to compute the approximate fisher information matrix, by default is 123.}
-
-\item{LargePowerApproxi}{TRUE or FALSE indicates whether to use the large power approximation formula.}
-
-\item{lower.lim.n}{An integer number that indicates the smallest sample size to be considered, only for "expand" method.}
 
 \item{upper.lim.n}{An integer number that indicates the largest sample size to be considered.}
 
@@ -53,8 +46,6 @@ The sample size required to achieve the aimed power.
 Compute the sample size of a given study using the method of representative dataset
 }
 \examples{
-parameters <- list(TraitMean = 0.3, TraitSD = 1, pG = 0.2, betaG = log(1.1), betaE = log(1.1),
-muE = 0, sigmaE = 3, gammaG = log(2.1))
-SPCompute:::Compute_Size_Expanded(parameters, PowerAim = 0.8, response = "continuous",
-covariate = "continuous", mode = "additive")
+parameters <- list(TraitMean = 0.3, TraitSD = 1, pG = 0.2, betaG = log(1.1), betaE = log(1.1), muE = 0, sigmaE = 3, gammaG = log(2.1))
+Compute_Size_Expanded(parameters, PowerAim = 0.8, B = 10000, "continuous", "continuous")
 }

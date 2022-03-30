@@ -26,7 +26,7 @@ its mean and standard deviation. The MAF is defined as "pG", with HWE assumed to
 
 \item{B}{An integer number that indicates the number of simulated sample to approximate the fisher information matrix, by default is 10000.}
 
-\item{response}{A string of either "binary" or "continuous", indicating the type of response/trait variable in the model, by default is "binary"}
+\item{response}{A string of either "binary" or "continuous", indicating the type of respone/trait variable in the model, by default is "binary"}
 
 \item{covariate}{A string of either "binary", "continuous" or "none" indicating the type of covariate E in the model, by default is "binary".}
 
@@ -47,8 +47,6 @@ The sample size required to achieve the aimed power.
 Compute the sample size required for an association study, to achieve an aimed power, using the semi-simulation method (Implementing in a simpler but slower way).
 }
 \examples{
-parameters <- list(TraitMean = 0.3, TraitSD = 1, pG = 0.2, betaG = log(1.1),
-betaE = log(1.1), muE = 0, sigmaE = 3, gammaG = log(2.1))
-SPCompute:::Compute_Size_Sim_simpler(parameters, PowerAim = 0.8,
-B = 10000, "continuous", "continuous")
+parameters <- list(TraitMean = 0.3, TraitSD = 1, pG = 0.2, betaG = log(1.1), betaE = log(1.1), muE = 0, sigmaE = 3, gammaG = log(2.1))
+Compute_Size_Sim_simpler(parameters, PowerAim = 0.8, B = 10000, "continuous", "continuous")
 }

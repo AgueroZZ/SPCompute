@@ -1,18 +1,14 @@
-
 #' Check if the parameter list contains all the parameters required for the computation.
 #'
-#' @param parameters A list of parameters that contains all the required parameters in the model. If response is "binary", this list needs to contain "preva" which denotes the prevalence of the disease (or case to control ratio for case-control sampling). If response is continuous, the list needs to contain "TraitSD" and "TraitMean" which represent the standard deviation and mean of the continuous trait.
+#' @param parameters A list of parameters that contains all the required parameters in the model. If response is "binary", this list needs to contain "prev" which denotes the prevalence of the disease (or case to control ratio for case-control sampling). If response is continuous, the list needs to contain "traitSD" and "traitMean" which represent the standard deviation and mean of the continuous trait.
 #' #' If covariate is not "none", a parameter "gammaG" needs to be defined to capture the dependence between the SNP and the covariate (through linear regression model if covariate is continuous, and logistic model if covariate is binary). If covariate is "binary", list needs to contains "pE" that defines the frequency of the covariate. If it is continuous, list needs to contain "muE" and "sigmaE" to define
 #' #' its mean and standard deviation. The MAF is defined as "pG", with HWE assumed to hold.
 #' @param response A string of either "binary" or "continuous", indicating the type of response/trait variable in the model.
 #' @param covariate A string of either "binary", "continuous" or "none" indicating the type of covariate E in the model.
-#' @return TRUE or FALSE if all the parameters are correctly defined.
+#' @return TRUE or FASLE if all the parameters are correctly defined.
 #' @examples
-#' parameters <- list(TraitMean = 0.3, TraitSD = 1, pG = 0.2, betaG = log(1.1),
-#' betaE = log(1.1), muE = 0, sigmaE = 3, gammaG = log(2.1))
-#'
-#' SPCompute::check_parameters(parameters, "continuous", "continuous")
-#' @export
+#' parameters <- list(TraitMean = 0.3, TraitSD = 1, pG = 0.2, betaG = log(1.1), betaE = log(1.1), muE = 0, sigmaE = 3, gammaG = log(2.1))
+#' check_parameters(parameters, "continuous", "continuous")
 check_parameters <- function(parameters, response, covariate){
   if(response == "binary"){
     if(covariate == "continuous"){
@@ -124,9 +120,8 @@ check_parameters <- function(parameters, response, covariate){
 #' @param searchSizeBeta0 The interval radius for the numerical search of beta0, by default is 8. Setting to higher values may solve some numerical problems at the cost of longer runtime.
 #' @return The power that can be achieved at the given sample size.
 #' @examples
-#' parameters <- list(TraitMean = 0.3, TraitSD = 1, pG = 0.2, betaG = log(1.1), betaE = log(1.1),
-#' muE = 0, sigmaE = 3, gammaG = log(2.1))
-#' SPCompute:::Compute_Power_Sim(parameters, n = 1000, B = 10000, "continuous", "continuous")
+#' parameters <- list(TraitMean = 0.3, TraitSD = 1, pG = 0.2, betaG = log(1.1), betaE = log(1.1), muE = 0, sigmaE = 3, gammaG = log(2.1))
+#' Compute_Power_Sim(parameters, n = 1000, B = 10000, "continuous", "continuous")
 Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", covariate = "binary", mode = "additive", alpha = 0.05, seed = 123, LargePowerApproxi = F, searchSizeGamma0 = 8, searchSizeBeta0 = 8){
   if(check_parameters(parameters, response, covariate) != T){return(message("Define the above missing parameters before continuing"))}
   if(response == "binary"){
@@ -178,7 +173,7 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
         set.seed(seed)
         for (i in 1:B) {
           G <- sample(c(0,1,2), size = 1, replace = T, prob = c(qG^2, 2*pG*qG, pG^2))
-          E_lat <- gamma0 + gammaG*G + stats::rlogis(1)
+          E_lat <- gamma0 + gammaG*G + rlogis(1)
           E <- ifelse(E_lat>=0, 1, 0)
           X <- matrix(c(1,G,E), ncol = 1)
           eta <- beta0 + betaG*G + betaE*E
@@ -188,14 +183,14 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
         I <- I/B
         if(LargePowerApproxi){
           SE <- sqrt((solve(I)[2,2]))/sqrt(n)
-          return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+          return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
         }
         else{
           compute_power <- function(n){
             ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
             SE = sqrt((solve(I)[2,2]))/sqrt(n)
             ### Once know this SE of betaG hat, compute its power at this given sample size n:
-            Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+            Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
             Power
           }
           compute_power(n)
@@ -231,7 +226,7 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
         set.seed(seed)
         for (i in 1:B) {
           G <- sample(c(0,1), size = 1, replace = T, prob = c(qG,pG))
-          E_lat <- gamma0 + gammaG*G + stats::rlogis(1)
+          E_lat <- gamma0 + gammaG*G + rlogis(1)
           E <- ifelse(E_lat>=0, 1, 0)
           X <- matrix(c(1,G,E), ncol = 1)
           eta <- beta0 + betaG*G + betaE*E
@@ -242,14 +237,14 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
 
         if(LargePowerApproxi){
           SE <- sqrt((solve(I)[2,2]))/sqrt(n)
-          return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+          return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
         }
         else{
           compute_power <- function(n){
             ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
             SE = sqrt((solve(I)[2,2]))/sqrt(n)
             ### Once know this SE of betaG hat, compute its power at this given sample size n:
-            Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+            Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
             Power
           }
           compute_power(n)
@@ -287,7 +282,7 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
 
         for (i in 1:B) {
           G <- sample(c(0,1), size = 1, replace = T, prob = c(qG,pG))
-          E_lat <- gamma0 + gammaG*G + stats::rlogis(1)
+          E_lat <- gamma0 + gammaG*G + rlogis(1)
           E <- ifelse(E_lat>=0, 1, 0)
           X <- matrix(c(1,G,E), ncol = 1)
           eta <- beta0 + betaG*G + betaE*E
@@ -298,14 +293,14 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
 
         if(LargePowerApproxi){
           SE <- sqrt((solve(I)[2,2]))/sqrt(n)
-          return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+          return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
         }
         else{
           compute_power <- function(n){
             ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
             SE = sqrt((solve(I)[2,2]))/sqrt(n)
             ### Once know this SE of betaG hat, compute its power at this given sample size n:
-            Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+            Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
             Power
           }
           compute_power(n)
@@ -336,8 +331,8 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
           ComputeP <- function(beta0){
             set.seed(seed)
             G <- sample(c(0,1,2), size = B, replace = T, prob = c(qG^2, 2*pG*qG, pG^2))
-            E <- gamma0 + gammaG * G + stats::rnorm(B, sd = sigmaError)
-            y <- beta0 + betaG * G + betaE * E + stats::rlogis(B)
+            E <- gamma0 + gammaG * G + rnorm(B, sd = sigmaError)
+            y <- beta0 + betaG * G + betaE * E + rlogis(B)
             P <- mean(ifelse(y > 0, 1, 0))
             P - preva
           }
@@ -348,7 +343,7 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
         set.seed(seed)
         for (i in 1:B) {
           G <- sample(c(0,1,2), size = 1, replace = T, prob = c(qG^2,2*pG*qG, pG^2))
-          E <- gamma0 + gammaG*G + stats::rnorm(1,sd = sigmaError)
+          E <- gamma0 + gammaG*G + rnorm(1,sd = sigmaError)
           X <- matrix(c(1,G,E), ncol = 1)
           eta <- beta0 + betaG*G + betaE*E
           weight <- stats::dlogis(eta)
@@ -357,14 +352,14 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
         I <- I/B
         if(LargePowerApproxi){
           SE <- sqrt((solve(I)[2,2]))/sqrt(n)
-          return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+          return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
         }
         else{
           compute_power <- function(n){
             ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
             SE = sqrt((solve(I)[2,2]))/sqrt(n)
             ### Once know this SE of betaG hat, compute its power at this given sample size n:
-            Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+            Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
             Power
           }
           compute_power(n)
@@ -390,8 +385,8 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
           ComputeP <- function(beta0){
             set.seed(seed)
             G <- sample(c(0,1), size = B, replace = T, prob = c(qG,pG))
-            E <- gamma0 + gammaG * G + stats::rnorm(B, sd = sigmaError)
-            y <- beta0 + betaG * G + betaE * E + stats::rlogis(B)
+            E <- gamma0 + gammaG * G + rnorm(B, sd = sigmaError)
+            y <- beta0 + betaG * G + betaE * E + rlogis(B)
             P <- mean(ifelse(y > 0, 1, 0))
             P - preva
           }
@@ -405,7 +400,7 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
 
         for (i in 1:B) {
           G <- sample(c(0,1), size = 1, replace = T, prob = c(qG, pG))
-          E <- gamma0 + gammaG*G + stats::rnorm(1,sd = sigmaError)
+          E <- gamma0 + gammaG*G + rnorm(1,sd = sigmaError)
           X <- matrix(c(1,G,E), ncol = 1)
           eta <- beta0 + betaG*G + betaE*E
           weight <- stats::dlogis(eta)
@@ -414,14 +409,14 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
         I <- I/B
         if(LargePowerApproxi){
           SE <- sqrt((solve(I)[2,2]))/sqrt(n)
-          return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+          return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
         }
         else{
           compute_power <- function(n){
             ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
             SE = sqrt((solve(I)[2,2]))/sqrt(n)
             ### Once know this SE of betaG hat, compute its power at this given sample size n:
-            Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+            Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
             Power
           }
           compute_power(n)
@@ -445,8 +440,8 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
           ComputeP <- function(beta0){
             set.seed(seed)
             G <- sample(c(0,1), size = B, replace = T, prob = c(qG,pG))
-            E <- gamma0 + gammaG * G + stats::rnorm(B, sd = sigmaError)
-            y <- beta0 + betaG * G + betaE * E + stats::rlogis(B)
+            E <- gamma0 + gammaG * G + rnorm(B, sd = sigmaError)
+            y <- beta0 + betaG * G + betaE * E + rlogis(B)
             P <- mean(ifelse(y > 0, 1, 0))
             P - preva
           }
@@ -460,7 +455,7 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
 
         for (i in 1:B) {
           G <- sample(c(0,1), size = 1, replace = T, prob = c(qG, pG))
-          E <- gamma0 + gammaG*G + stats::rnorm(1,sd = sigmaError)
+          E <- gamma0 + gammaG*G + rnorm(1,sd = sigmaError)
           X <- matrix(c(1,G,E), ncol = 1)
           eta <- beta0 + betaG*G + betaE*E
           weight <- stats::dlogis(eta)
@@ -469,14 +464,14 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
         I <- I/B
         if(LargePowerApproxi){
           SE <- sqrt((solve(I)[2,2]))/sqrt(n)
-          return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+          return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
         }
         else{
           compute_power <- function(n){
             ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
             SE = sqrt((solve(I)[2,2]))/sqrt(n)
             ### Once know this SE of betaG hat, compute its power at this given sample size n:
-            Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+            Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
             Power
           }
           compute_power(n)
@@ -511,14 +506,14 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
         I <- I/B
         if(LargePowerApproxi){
           SE <- sqrt((solve(I)[2,2]))/sqrt(n)
-          return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+          return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
         }
         else{
           compute_power <- function(n){
             ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
             SE = sqrt((solve(I)[2,2]))/sqrt(n)
             ### Once know this SE of betaG hat, compute its power at this given sample size n:
-            Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+            Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
             Power
           }
           compute_power(n)
@@ -552,14 +547,14 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
         I <- I/B
         if(LargePowerApproxi){
           SE <- sqrt((solve(I)[2,2]))/sqrt(n)
-          return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+          return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
         }
         else{
           compute_power <- function(n){
             ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
             SE = sqrt((solve(I)[2,2]))/sqrt(n)
             ### Once know this SE of betaG hat, compute its power at this given sample size n:
-            Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+            Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
             Power
           }
           compute_power(n)
@@ -592,14 +587,14 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
         I <- I/B
         if(LargePowerApproxi){
           SE <- sqrt((solve(I)[2,2]))/sqrt(n)
-          return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+          return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
         }
         else{
           compute_power <- function(n){
             ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
             SE = sqrt((solve(I)[2,2]))/sqrt(n)
             ### Once know this SE of betaG hat, compute its power at this given sample size n:
-            Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+            Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
             Power
           }
           compute_power(n)
@@ -644,14 +639,14 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
           I <- Matrix::forceSymmetric(I/(SigmaError1^2), uplo = "U")
           if(LargePowerApproxi){
             SE <- sqrt((solve(I)[2,2]))/sqrt(n)
-            return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+            return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
           }
           else{
             compute_power <- function(n){
               ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
               SE = sqrt((solve(I)[2,2]))/sqrt(n)
               ### Once know this SE of betaG hat, compute its power at this given sample size n:
-              Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+              Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
               Power
             }
             compute_power(n)
@@ -681,14 +676,14 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
           I <- Matrix::forceSymmetric(I/(SigmaError1^2), uplo = "U")
           if(LargePowerApproxi){
             SE <- sqrt((solve(I)[2,2]))/sqrt(n)
-            return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+            return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
           }
           else{
             compute_power <- function(n){
               ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
               SE = sqrt((solve(I)[2,2]))/sqrt(n)
               ### Once know this SE of betaG hat, compute its power at this given sample size n:
-              Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+              Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
               Power
             }
             compute_power(n)
@@ -718,14 +713,14 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
           I <- Matrix::forceSymmetric(I/(SigmaError1^2), uplo = "U")
           if(LargePowerApproxi){
             SE <- sqrt((solve(I)[2,2]))/sqrt(n)
-            return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+            return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
           }
           else{
             compute_power <- function(n){
               ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
               SE = sqrt((solve(I)[2,2]))/sqrt(n)
               ### Once know this SE of betaG hat, compute its power at this given sample size n:
-              Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+              Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
               Power
             }
             compute_power(n)
@@ -773,14 +768,14 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
           I <- Matrix::forceSymmetric(I/(SigmaError1^2), uplo = "U")
           if(LargePowerApproxi){
             SE <- sqrt((solve(I)[2,2]))/sqrt(n)
-            return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+            return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
           }
           else{
             compute_power <- function(n){
               ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
               SE = sqrt((solve(I)[2,2]))/sqrt(n)
               ### Once know this SE of betaG hat, compute its power at this given sample size n:
-              Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+              Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
               Power
             }
             compute_power(n)
@@ -815,14 +810,14 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
           I <-  Matrix::forceSymmetric(I/(SigmaError1^2), uplo = "U")
           if(LargePowerApproxi){
             SE <- sqrt((solve(I)[2,2]))/sqrt(n)
-            return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+            return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
           }
           else{
             compute_power <- function(n){
               ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
               SE = sqrt((solve(I)[2,2]))/sqrt(n)
               ### Once know this SE of betaG hat, compute its power at this given sample size n:
-              Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+              Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
               Power
             }
             compute_power(n)
@@ -857,14 +852,14 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
           I <- Matrix::forceSymmetric(I/(SigmaError1^2), uplo = "U")
           if(LargePowerApproxi){
             SE <- sqrt((solve(I)[2,2]))/sqrt(n)
-            return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+            return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
           }
           else{
             compute_power <- function(n){
               ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
               SE = sqrt((solve(I)[2,2]))/sqrt(n)
               ### Once know this SE of betaG hat, compute its power at this given sample size n:
-              Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+              Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
               Power
             }
             compute_power(n)
@@ -903,14 +898,14 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
         I <- I/(SigmaError1^2)
         if(LargePowerApproxi){
           SE <- sqrt((solve(I)[2,2]))/sqrt(n)
-          return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+          return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
         }
         else{
           compute_power <- function(n){
             ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
             SE = sqrt((solve(I)[2,2]))/sqrt(n)
             ### Once know this SE of betaG hat, compute its power at this given sample size n:
-            Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+            Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
             Power
           }
           compute_power(n)
@@ -946,14 +941,14 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
           I <- Matrix::forceSymmetric(I/(SigmaError1^2), uplo = "U")
           if(LargePowerApproxi){
             SE <- sqrt((solve(I)[2,2]))/sqrt(n)
-            return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+            return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
           }
           else{
             compute_power <- function(n){
               ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
               SE = sqrt((solve(I)[2,2]))/sqrt(n)
               ### Once know this SE of betaG hat, compute its power at this given sample size n:
-              Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+              Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
               Power
             }
             compute_power(n)
@@ -978,14 +973,14 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
           I <- Matrix::forceSymmetric(I/(SigmaError1^2), uplo = "U")
           if(LargePowerApproxi){
             SE <- sqrt((solve(I)[2,2]))/sqrt(n)
-            return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+            return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
           }
           else{
             compute_power <- function(n){
               ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
               SE = sqrt((solve(I)[2,2]))/sqrt(n)
               ### Once know this SE of betaG hat, compute its power at this given sample size n:
-              Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+              Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
               Power
             }
             compute_power(n)
@@ -1010,14 +1005,14 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
           I <- Matrix::forceSymmetric(I/(SigmaError1^2), uplo = "U")
           if(LargePowerApproxi){
             SE <- sqrt((solve(I)[2,2]))/sqrt(n)
-            return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+            return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
           }
           else{
             compute_power <- function(n){
               ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
               SE = sqrt((solve(I)[2,2]))/sqrt(n)
               ### Once know this SE of betaG hat, compute its power at this given sample size n:
-              Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+              Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
               Power
             }
             compute_power(n)
@@ -1059,14 +1054,14 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
           I <- Matrix::forceSymmetric(I/(SigmaError1^2), uplo = "U")
           if(LargePowerApproxi){
             SE <- sqrt((solve(I)[2,2]))/sqrt(n)
-            return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+            return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
           }
           else{
             compute_power <- function(n){
               ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
               SE = sqrt((solve(I)[2,2]))/sqrt(n)
               ### Once know this SE of betaG hat, compute its power at this given sample size n:
-              Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+              Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
               Power
             }
             compute_power(n)
@@ -1096,14 +1091,14 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
           I <-  Matrix::forceSymmetric(I/(SigmaError1^2), uplo = "U")
           if(LargePowerApproxi){
             SE <- sqrt((solve(I)[2,2]))/sqrt(n)
-            return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+            return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
           }
           else{
             compute_power <- function(n){
               ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
               SE = sqrt((solve(I)[2,2]))/sqrt(n)
               ### Once know this SE of betaG hat, compute its power at this given sample size n:
-              Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+              Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
               Power
             }
             compute_power(n)
@@ -1132,14 +1127,14 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
           I <- Matrix::forceSymmetric(I/(SigmaError1^2), uplo = "U")
           if(LargePowerApproxi){
             SE <- sqrt((solve(I)[2,2]))/sqrt(n)
-            return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+            return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
           }
           else{
             compute_power <- function(n){
               ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
               SE = sqrt((solve(I)[2,2]))/sqrt(n)
               ### Once know this SE of betaG hat, compute its power at this given sample size n:
-              Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+              Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
               Power
             }
             compute_power(n)
@@ -1175,14 +1170,14 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
         I <- I/(SigmaError1^2)
         if(LargePowerApproxi){
           SE <- sqrt((solve(I)[2,2]))/sqrt(n)
-          return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+          return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
         }
         else{
           compute_power <- function(n){
             ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
             SE = sqrt((solve(I)[2,2]))/sqrt(n)
             ### Once know this SE of betaG hat, compute its power at this given sample size n:
-            Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+            Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
             Power
           }
           compute_power(n)
@@ -1209,7 +1204,7 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
 #' its mean and standard deviation. The MAF is defined as "pG", with HWE assumed to hold.
 #' @param PowerAim An numeric value between 0 and 1 that indicates the aimed power of the study.
 #' @param B An integer number that indicates the number of simulated sample to approximate the fisher information matrix, by default is 10000.
-#' @param response A string of either "binary" or "continuous", indicating the type of response/trait variable in the model, by default is "binary"
+#' @param response A string of either "binary" or "continuous", indicating the type of respone/trait variable in the model, by default is "binary"
 #' @param covariate A string of either "binary", "continuous" or "none" indicating the type of covariate E in the model, by default is "binary".
 #' @param mode A string of either "additive", "dominant" or "recessive", indicating the genetic mode, by default is "additive".
 #' @param alpha A numeric value that denotes the significance level used in the study, by default is 0.05.
@@ -1220,9 +1215,8 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
 #' @param searchSizeBeta0 The interval radius for the numerical search of beta0, by default is 8. Setting to higher values may solve some numerical problems at the cost of longer runtime.
 #' @return The sample size required to achieve the aimed power.
 #' @examples
-#' parameters <- list(TraitMean = 0.3, TraitSD = 1, pG = 0.2, betaG = log(1.1),
-#' betaE = log(1.1), muE = 0, sigmaE = 3, gammaG = log(2.1))
-#' SPCompute:::Compute_Size_Sim(parameters, PowerAim = 0.8, B = 10000, "continuous", "continuous")
+#' parameters <- list(TraitMean = 0.3, TraitSD = 1, pG = 0.2, betaG = log(1.1), betaE = log(1.1), muE = 0, sigmaE = 3, gammaG = log(2.1))
+#' Compute_Size_Sim(parameters, PowerAim = 0.8, B = 10000, "continuous", "continuous")
 Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary", covariate = "binary", mode = "additive", alpha = 0.05, seed = 123, LargePowerApproxi = F, upper.lim.n = 800000, searchSizeGamma0 = 8, searchSizeBeta0 = 8){
   if(check_parameters(parameters, response, covariate) != T){return(message("Define the above missing parameters before continuing"))}
   if(response == "binary"){
@@ -1274,7 +1268,7 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
         set.seed(seed)
         for (i in 1:B) {
           G <- sample(c(0,1,2), size = 1, replace = T, prob = c(qG^2, 2*pG*qG, pG^2))
-          E_lat <- gamma0 + gammaG*G + stats::rlogis(1)
+          E_lat <- gamma0 + gammaG*G + rlogis(1)
           E <- ifelse(E_lat>=0, 1, 0)
           X <- matrix(c(1,G,E), ncol = 1)
           eta <- beta0 + betaG*G + betaE*E
@@ -1283,14 +1277,14 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
         }
         I <- I/B
         if(LargePowerApproxi){
-          ((stats::qnorm(1-(alpha/2)) + stats::qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
+          ((qnorm(1-(alpha/2)) + qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
         }
         else{
           compute_power_diff <- function(n){
             ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
             SE = sqrt((solve(I)[2,2]))/sqrt(n)
             ### Once know this SE of betaG hat, compute its power at this given sample size n:
-            Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+            Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
             Power - PowerAim
           }
           if(compute_power_diff(upper.lim.n) <=0) {return(message(paste("The required sample size is estimated to be larger than upper.lim.n, which is", upper.lim.n, sep = " ")))}
@@ -1327,7 +1321,7 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
         set.seed(seed)
         for (i in 1:B) {
           G <- sample(c(0,1), size = 1, replace = T, prob = c(qG,pG))
-          E_lat <- gamma0 + gammaG*G + stats::rlogis(1)
+          E_lat <- gamma0 + gammaG*G + rlogis(1)
           E <- ifelse(E_lat>=0, 1, 0)
           X <- matrix(c(1,G,E), ncol = 1)
           eta <- beta0 + betaG*G + betaE*E
@@ -1337,14 +1331,14 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
         I <- I/B
 
         if(LargePowerApproxi){
-          ((stats::qnorm(1-(alpha/2)) + stats::qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
+          ((qnorm(1-(alpha/2)) + qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
         }
         else{
           compute_power_diff <- function(n){
             ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
             SE = sqrt((solve(I)[2,2]))/sqrt(n)
             ### Once know this SE of betaG hat, compute its power at this given sample size n:
-            Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+            Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
             Power - PowerAim
           }
           if(compute_power_diff(upper.lim.n) <=0) { return(message(paste("The required sample size is estimated to be larger than upper.lim.n, which is", upper.lim.n, sep = " ")))}
@@ -1383,7 +1377,7 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
 
         for (i in 1:B) {
           G <- sample(c(0,1), size = 1, replace = T, prob = c(qG,pG))
-          E_lat <- gamma0 + gammaG*G + stats::rlogis(1)
+          E_lat <- gamma0 + gammaG*G + rlogis(1)
           E <- ifelse(E_lat>=0, 1, 0)
           X <- matrix(c(1,G,E), ncol = 1)
           eta <- beta0 + betaG*G + betaE*E
@@ -1393,14 +1387,14 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
         I <- I/B
 
         if(LargePowerApproxi){
-          ((stats::qnorm(1-(alpha/2)) + stats::qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
+          ((qnorm(1-(alpha/2)) + qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
         }
         else{
           compute_power_diff <- function(n){
             ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
             SE = sqrt((solve(I)[2,2]))/sqrt(n)
             ### Once know this SE of betaG hat, compute its power at this given sample size n:
-            Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+            Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
             Power - PowerAim
           }
           if(compute_power_diff(upper.lim.n) <=0) { return(message(paste("The required sample size is estimated to be larger than upper.lim.n, which is", upper.lim.n, sep = " ")))}
@@ -1433,8 +1427,8 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
           ComputeP <- function(beta0){
             set.seed(seed)
             G <- sample(c(0,1,2), size = B, replace = T, prob = c(qG^2, 2*pG*qG, pG^2))
-            E <- gamma0 + gammaG * G + stats::rnorm(B, sd = sigmaError)
-            y <- beta0 + betaG * G + betaE * E + stats::rlogis(B)
+            E <- gamma0 + gammaG * G + rnorm(B, sd = sigmaError)
+            y <- beta0 + betaG * G + betaE * E + rlogis(B)
             P <- mean(ifelse(y > 0, 1, 0))
             P - preva
           }
@@ -1445,7 +1439,7 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
         set.seed(seed)
         for (i in 1:B) {
           G <- sample(c(0,1,2), size = 1, replace = T, prob = c(qG^2,2*pG*qG, pG^2))
-          E <- gamma0 + gammaG*G + stats::rnorm(1,sd = sigmaError)
+          E <- gamma0 + gammaG*G + rnorm(1,sd = sigmaError)
           X <- matrix(c(1,G,E), ncol = 1)
           eta <- beta0 + betaG*G + betaE*E
           weight <- stats::dlogis(eta)
@@ -1453,19 +1447,19 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
         }
         I <- I/B
         if(LargePowerApproxi){
-          ((stats::qnorm(1-(alpha/2)) + stats::qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
+          ((qnorm(1-(alpha/2)) + qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
         }
         else{
           compute_power_diff <- function(n){
             ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
             SE = sqrt((solve(I)[2,2]))/sqrt(n)
             ### Once know this SE of betaG hat, compute its power at this given sample size n:
-            Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+            Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
             Power - PowerAim
           }
           if(compute_power_diff(upper.lim.n) <=0) { return(message(paste("The required sample size is estimated to be larger than upper.lim.n, which is", upper.lim.n, sep = " ")))}
           return(stats::uniroot(compute_power_diff, c(0, upper.lim.n))$root)
-          stats::uniroot(compute_power_diff, c(0, upper.lim.n))$root
+          uniroot(compute_power_diff, c(0, upper.lim.n))$root
         }
       }
       else if(mode == "dominant"){
@@ -1488,8 +1482,8 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
           ComputeP <- function(beta0){
             set.seed(seed)
             G <- sample(c(0,1), size = B, replace = T, prob = c(qG,pG))
-            E <- gamma0 + gammaG * G + stats::rnorm(B, sd = sigmaError)
-            y <- beta0 + betaG * G + betaE * E + stats::rlogis(B)
+            E <- gamma0 + gammaG * G + rnorm(B, sd = sigmaError)
+            y <- beta0 + betaG * G + betaE * E + rlogis(B)
             P <- mean(ifelse(y > 0, 1, 0))
             P - preva
           }
@@ -1503,7 +1497,7 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
 
         for (i in 1:B) {
           G <- sample(c(0,1), size = 1, replace = T, prob = c(qG, pG))
-          E <- gamma0 + gammaG*G + stats::rnorm(1,sd = sigmaError)
+          E <- gamma0 + gammaG*G + rnorm(1,sd = sigmaError)
           X <- matrix(c(1,G,E), ncol = 1)
           eta <- beta0 + betaG*G + betaE*E
           weight <- stats::dlogis(eta)
@@ -1511,14 +1505,14 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
         }
         I <- I/B
         if(LargePowerApproxi){
-          ((stats::qnorm(1-(alpha/2)) + stats::qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
+          ((qnorm(1-(alpha/2)) + qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
         }
         else{
           compute_power_diff <- function(n){
             ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
             SE = sqrt((solve(I)[2,2]))/sqrt(n)
             ### Once know this SE of betaG hat, compute its power at this given sample size n:
-            Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+            Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
             Power - PowerAim
           }
           if(compute_power_diff(upper.lim.n) <=0) { return(message(paste("The required sample size is estimated to be larger than upper.lim.n, which is", upper.lim.n, sep = " ")))}
@@ -1543,8 +1537,8 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
           ComputeP <- function(beta0){
             set.seed(seed)
             G <- sample(c(0,1), size = B, replace = T, prob = c(qG,pG))
-            E <- gamma0 + gammaG * G + stats::rnorm(B, sd = sigmaError)
-            y <- beta0 + betaG * G + betaE * E + stats::rlogis(B)
+            E <- gamma0 + gammaG * G + rnorm(B, sd = sigmaError)
+            y <- beta0 + betaG * G + betaE * E + rlogis(B)
             P <- mean(ifelse(y > 0, 1, 0))
             P - preva
           }
@@ -1558,7 +1552,7 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
 
         for (i in 1:B) {
           G <- sample(c(0,1), size = 1, replace = T, prob = c(qG, pG))
-          E <- gamma0 + gammaG*G + stats::rnorm(1,sd = sigmaError)
+          E <- gamma0 + gammaG*G + rnorm(1,sd = sigmaError)
           X <- matrix(c(1,G,E), ncol = 1)
           eta <- beta0 + betaG*G + betaE*E
           weight <- stats::dlogis(eta)
@@ -1566,14 +1560,14 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
         }
         I <- I/B
         if(LargePowerApproxi){
-          ((stats::qnorm(1-(alpha/2)) + stats::qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
+          ((qnorm(1-(alpha/2)) + qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
         }
         else{
           compute_power_diff <- function(n){
             ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
             SE = sqrt((solve(I)[2,2]))/sqrt(n)
             ### Once know this SE of betaG hat, compute its power at this given sample size n:
-            Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+            Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
             Power - PowerAim
           }
           if(compute_power_diff(upper.lim.n) <=0) { return(message(paste("The required sample size is estimated to be larger than upper.lim.n, which is", upper.lim.n, sep = " ")))}
@@ -1608,14 +1602,14 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
         }
         I <- I/B
         if(LargePowerApproxi){
-          ((stats::qnorm(1-(alpha/2)) + stats::qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
+          ((qnorm(1-(alpha/2)) + qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
         }
         else{
           compute_power_diff <- function(n){
             ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
             SE = sqrt((solve(I)[2,2]))/sqrt(n)
             ### Once know this SE of betaG hat, compute its power at this given sample size n:
-            Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+            Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
             Power - PowerAim
           }
           if(compute_power_diff(upper.lim.n) <=0) { return(message(paste("The required sample size is estimated to be larger than upper.lim.n, which is", upper.lim.n, sep = " ")))}
@@ -1649,14 +1643,14 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
         }
         I <- I/B
         if(LargePowerApproxi){
-          ((stats::qnorm(1-(alpha/2)) + stats::qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
+          ((qnorm(1-(alpha/2)) + qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
         }
         else{
           compute_power_diff <- function(n){
             ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
             SE = sqrt((solve(I)[2,2]))/sqrt(n)
             ### Once know this SE of betaG hat, compute its power at this given sample size n:
-            Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+            Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
             Power - PowerAim
           }
           if(compute_power_diff(upper.lim.n) <=0) { return(message(paste("The required sample size is estimated to be larger than upper.lim.n, which is", upper.lim.n, sep = " ")))}
@@ -1689,14 +1683,14 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
         }
         I <- I/B
         if(LargePowerApproxi){
-          ((stats::qnorm(1-(alpha/2)) + stats::qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
+          ((qnorm(1-(alpha/2)) + qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
         }
         else{
           compute_power_diff <- function(n){
             ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
             SE = sqrt((solve(I)[2,2]))/sqrt(n)
             ### Once know this SE of betaG hat, compute its power at this given sample size n:
-            Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+            Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
             Power - PowerAim
           }
           if(compute_power_diff(upper.lim.n) <=0) { return(message(paste("The required sample size is estimated to be larger than upper.lim.n, which is", upper.lim.n, sep = " ")))}
@@ -1741,14 +1735,14 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
           I[3,3] <- EE2
           I <- Matrix::forceSymmetric(I/(SigmaError1^2), uplo = "U")
           if(LargePowerApproxi){
-            ((stats::qnorm(1-(alpha/2)) + stats::qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
+            ((qnorm(1-(alpha/2)) + qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
           }
           else{
             compute_power_diff <- function(n){
               ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
               SE = sqrt((solve(I)[2,2]))/sqrt(n)
               ### Once know this SE of betaG hat, compute its power at this given sample size n:
-              Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+              Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
               Power - PowerAim
             }
             if(compute_power_diff(upper.lim.n) <=0) { return(message(paste("The required sample size is estimated to be larger than upper.lim.n, which is", upper.lim.n, sep = " ")))}
@@ -1778,14 +1772,14 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
           I[3,3] <- EE2
           I <- Matrix::forceSymmetric(I/(SigmaError1^2), uplo = "U")
           if(LargePowerApproxi){
-            ((stats::qnorm(1-(alpha/2)) + stats::qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
+            ((qnorm(1-(alpha/2)) + qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
           }
           else{
             compute_power_diff <- function(n){
               ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
               SE = sqrt((solve(I)[2,2]))/sqrt(n)
               ### Once know this SE of betaG hat, compute its power at this given sample size n:
-              Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+              Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
               Power - PowerAim
             }
             if(compute_power_diff(upper.lim.n) <=0) { return(message(paste("The required sample size is estimated to be larger than upper.lim.n, which is", upper.lim.n, sep = " ")))}
@@ -1815,14 +1809,14 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
           I[3,3] <- EE2
           I <- Matrix::forceSymmetric(I/(SigmaError1^2), uplo = "U")
           if(LargePowerApproxi){
-            ((stats::qnorm(1-(alpha/2)) + stats::qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
+            ((qnorm(1-(alpha/2)) + qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
           }
           else{
             compute_power_diff <- function(n){
               ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
               SE = sqrt((solve(I)[2,2]))/sqrt(n)
               ### Once know this SE of betaG hat, compute its power at this given sample size n:
-              Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+              Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
               Power - PowerAim
             }
             if(compute_power_diff(upper.lim.n) <=0) { return(message(paste("The required sample size is estimated to be larger than upper.lim.n, which is", upper.lim.n, sep = " ")))}
@@ -1870,14 +1864,14 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
           I[3,3] <- EE2
           I <- Matrix::forceSymmetric(I/(SigmaError1^2), uplo = "U")
           if(LargePowerApproxi){
-            ((stats::qnorm(1-(alpha/2)) + stats::qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
+            ((qnorm(1-(alpha/2)) + qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
           }
           else{
             compute_power_diff <- function(n){
               ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
               SE = sqrt((solve(I)[2,2]))/sqrt(n)
               ### Once know this SE of betaG hat, compute its power at this given sample size n:
-              Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+              Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
               Power - PowerAim
             }
             if(compute_power_diff(upper.lim.n) <=0) { return(message(paste("The required sample size is estimated to be larger than upper.lim.n, which is", upper.lim.n, sep = " ")))}
@@ -1912,14 +1906,14 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
           I[3,3] <- EE2
           I <-  Matrix::forceSymmetric(I/(SigmaError1^2), uplo = "U")
           if(LargePowerApproxi){
-            ((stats::qnorm(1-(alpha/2)) + stats::qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
+            ((qnorm(1-(alpha/2)) + qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
           }
           else{
             compute_power_diff <- function(n){
               ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
               SE = sqrt((solve(I)[2,2]))/sqrt(n)
               ### Once know this SE of betaG hat, compute its power at this given sample size n:
-              Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+              Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
               Power - PowerAim
             }
             if(compute_power_diff(upper.lim.n) <=0) { return(message(paste("The required sample size is estimated to be larger than upper.lim.n, which is", upper.lim.n, sep = " ")))}
@@ -1954,14 +1948,14 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
           I[3,3] <- EE2
           I <- Matrix::forceSymmetric(I/(SigmaError1^2), uplo = "U")
           if(LargePowerApproxi){
-            ((stats::qnorm(1-(alpha/2)) + stats::qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
+            ((qnorm(1-(alpha/2)) + qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
           }
           else{
             compute_power_diff <- function(n){
               ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
               SE = sqrt((solve(I)[2,2]))/sqrt(n)
               ### Once know this SE of betaG hat, compute its power at this given sample size n:
-              Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+              Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
               Power - PowerAim
             }
             if(compute_power_diff(upper.lim.n) <=0) { return(message(paste("The required sample size is estimated to be larger than upper.lim.n, which is", upper.lim.n, sep = " ")))}
@@ -2000,14 +1994,14 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
         SigmaError1 <- sqrt(TraitSD^2 - (betaG^2) * VarG)
         I <- I/(SigmaError1^2)
         if(LargePowerApproxi){
-          ((stats::qnorm(1-(alpha/2)) + stats::qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
+          ((qnorm(1-(alpha/2)) + qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
         }
         else{
           compute_power_diff <- function(n){
             ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
             SE = sqrt((solve(I)[2,2]))/sqrt(n)
             ### Once know this SE of betaG hat, compute its power at this given sample size n:
-            Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+            Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
             Power - PowerAim
           }
           if(compute_power_diff(upper.lim.n) <=0) return(message(paste("The required sample size is estimated to be larger than upper.lim.n, which is", upper.lim.n, sep = " ")))
@@ -2043,14 +2037,14 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
           I[3,3] <- EE2
           I <- Matrix::forceSymmetric(I/(SigmaError1^2), uplo = "U")
           if(LargePowerApproxi){
-            ((stats::qnorm(1-(alpha/2)) + stats::qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
+            ((qnorm(1-(alpha/2)) + qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
           }
           else{
             compute_power_diff <- function(n){
               ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
               SE = sqrt((solve(I)[2,2]))/sqrt(n)
               ### Once know this SE of betaG hat, compute its power at this given sample size n:
-              Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+              Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
               Power - PowerAim
             }
             if(compute_power_diff(upper.lim.n) <=0) { return(message(paste("The required sample size is estimated to be larger than upper.lim.n, which is", upper.lim.n, sep = " ")))}
@@ -2075,14 +2069,14 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
           I[3,3] <- EE2
           I <- Matrix::forceSymmetric(I/(SigmaError1^2), uplo = "U")
           if(LargePowerApproxi){
-            ((stats::qnorm(1-(alpha/2)) + stats::qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
+            ((qnorm(1-(alpha/2)) + qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
           }
           else{
             compute_power_diff <- function(n){
               ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
               SE = sqrt((solve(I)[2,2]))/sqrt(n)
               ### Once know this SE of betaG hat, compute its power at this given sample size n:
-              Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+              Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
               Power - PowerAim
             }
             if(compute_power_diff(upper.lim.n) <=0) { return(message(paste("The required sample size is estimated to be larger than upper.lim.n, which is", upper.lim.n, sep = " ")))}
@@ -2107,14 +2101,14 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
           I[3,3] <- EE2
           I <- Matrix::forceSymmetric(I/(SigmaError1^2), uplo = "U")
           if(LargePowerApproxi){
-            ((stats::qnorm(1-(alpha/2)) + stats::qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
+            ((qnorm(1-(alpha/2)) + qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
           }
           else{
             compute_power_diff <- function(n){
               ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
               SE = sqrt((solve(I)[2,2]))/sqrt(n)
               ### Once know this SE of betaG hat, compute its power at this given sample size n:
-              Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+              Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
               Power - PowerAim
             }
             if(compute_power_diff(upper.lim.n) <=0) { return(message(paste("The required sample size is estimated to be larger than upper.lim.n, which is", upper.lim.n, sep = " ")))}
@@ -2156,14 +2150,14 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
           I[3,3] <- EE2
           I <- Matrix::forceSymmetric(I/(SigmaError1^2), uplo = "U")
           if(LargePowerApproxi){
-            ((stats::qnorm(1-(alpha/2)) + stats::qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
+            ((qnorm(1-(alpha/2)) + qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
           }
           else{
             compute_power_diff <- function(n){
               ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
               SE = sqrt((solve(I)[2,2]))/sqrt(n)
               ### Once know this SE of betaG hat, compute its power at this given sample size n:
-              Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+              Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
               Power - PowerAim
             }
             if(compute_power_diff(upper.lim.n) <=0) { return(message(paste("The required sample size is estimated to be larger than upper.lim.n, which is", upper.lim.n, sep = " ")))}
@@ -2193,14 +2187,14 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
           I[3,3] <- EE2
           I <-  Matrix::forceSymmetric(I/(SigmaError1^2), uplo = "U")
           if(LargePowerApproxi){
-            ((stats::qnorm(1-(alpha/2)) + stats::qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
+            ((qnorm(1-(alpha/2)) + qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
           }
           else{
             compute_power_diff <- function(n){
               ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
               SE = sqrt((solve(I)[2,2]))/sqrt(n)
               ### Once know this SE of betaG hat, compute its power at this given sample size n:
-              Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+              Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
               Power - PowerAim
             }
             if(compute_power_diff(upper.lim.n) <=0) { return(message(paste("The required sample size is estimated to be larger than upper.lim.n, which is", upper.lim.n, sep = " ")))}
@@ -2229,14 +2223,14 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
           I[3,3] <- EE2
           I <- Matrix::forceSymmetric(I/(SigmaError1^2), uplo = "U")
           if(LargePowerApproxi){
-            ((stats::qnorm(1-(alpha/2)) + stats::qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
+            ((qnorm(1-(alpha/2)) + qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
           }
           else{
             compute_power_diff <- function(n){
               ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
               SE = sqrt((solve(I)[2,2]))/sqrt(n)
               ### Once know this SE of betaG hat, compute its power at this given sample size n:
-              Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+              Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
               Power - PowerAim
             }
             if(compute_power_diff(upper.lim.n) <=0) { return(message(paste("The required sample size is estimated to be larger than upper.lim.n, which is", upper.lim.n, sep = " ")))}
@@ -2272,14 +2266,14 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
         else(return(message("Error: mode must be either dominant, recessive or additive")))
         I <- I/(SigmaError1^2)
         if(LargePowerApproxi){
-          ((stats::qnorm(1-(alpha/2)) + stats::qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
+          ((qnorm(1-(alpha/2)) + qnorm(PowerAim))^2)*(solve(I)[2,2])/(betaG^2)
         }
         else{
           compute_power_diff <- function(n){
             ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
             SE = sqrt((solve(I)[2,2]))/sqrt(n)
             ### Once know this SE of betaG hat, compute its power at this given sample size n:
-            Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+            Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
             Power - PowerAim
           }
           if(compute_power_diff(upper.lim.n) <=0) return(message(paste("The required sample size is estimated to be larger than upper.lim.n, which is", upper.lim.n, sep = " ")))
@@ -2314,9 +2308,8 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
 #' @param searchSizeBeta0 The interval radius for the numerical search of beta0, by default is 8. Setting to higher values may solve some numerical problems at the cost of longer runtime.
 #' @return The power that can be achieved at the given sample size.
 #' @examples
-#' parameters <- list(TraitMean = 0.3, TraitSD = 1, pG = 0.2, betaG = log(1.1), betaE = log(1.1),
-#' muE = 0, sigmaE = 3, gammaG = log(2.1))
-#' SPCompute:::Compute_Power_Expanded(parameters, n = 1000, "continuous", "continuous")
+#' parameters <- list(TraitMean = 0.3, TraitSD = 1, pG = 0.2, betaG = log(1.1), betaE = log(1.1), muE = 0, sigmaE = 3, gammaG = log(2.1))
+#' Compute_Power_Expanded(parameters, n = 1000, "continuous", "continuous")
 Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate = "binary", mode = "additive", alpha = 0.05, seed = 123, LargePowerApproxi = F, searchSizeGamma0 = 100, searchSizeBeta0 = 100){
   if(check_parameters(parameters, response, covariate) != T){return(message("Define the above missing parameters before continuing"))}
   if(response == "binary"){
@@ -2379,17 +2372,17 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
         ## Attach Y into the dataframe, and compute the weight of each observation
         data$Y <- c(rep(1,n), rep(0,n))
         data$weights <- c(ComputeYgivenGE(beta0, betaG, betaE, G = G, E = E, Y = 1), ComputeYgivenGE(beta0, betaG, betaE, G = G, E = E, Y = 0))
-        mod <- suppressWarnings(stats::glm(Y~G+E, family = stats::binomial(link = 'logit'), weights = data$weights, data = data))
+        mod <- suppressWarnings(glm(Y~G+E, family = binomial(link = 'logit'), weights = weights, data = data))
         if(LargePowerApproxi){
           SE <- summary(mod)$coefficients[2,2]
-          return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+          return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
         }
         else{
           compute_power <- function(n){
             ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
             SE = summary(mod)$coefficients[2,2]
             ### Once know this SE of betaG hat, compute its power at this given sample size n:
-            Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+            Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
             Power
           }
           compute_power(n)
@@ -2433,17 +2426,17 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
         ## Attach Y into the dataframe, and compute the weight of each observation
         data$Y <- c(rep(1,n), rep(0,n))
         data$weights <- c(ComputeYgivenGE(beta0, betaG, betaE, G = G, E = E, Y = 1), ComputeYgivenGE(beta0, betaG, betaE, G = G, E = E, Y = 0))
-        mod <- suppressWarnings(stats::glm(Y~G+E, family = stats::binomial(link = 'logit'), weights = data$weights, data = data))
+        mod <- suppressWarnings(glm(Y~G+E, family = binomial(link = 'logit'), weights = weights, data = data))
         if(LargePowerApproxi){
           SE <- summary(mod)$coefficients[2,2]
-          return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+          return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
         }
         else{
           compute_power <- function(n){
             ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
             SE = summary(mod)$coefficients[2,2]
             ### Once know this SE of betaG hat, compute its power at this given sample size n:
-            Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+            Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
             Power
           }
           compute_power(n)
@@ -2487,17 +2480,17 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
         ## Attach Y into the dataframe, and compute the weight of each observation
         data$Y <- c(rep(1,n), rep(0,n))
         data$weights <- c(ComputeYgivenGE(beta0, betaG, betaE, G = G, E = E, Y = 1), ComputeYgivenGE(beta0, betaG, betaE, G = G, E = E, Y = 0))
-        mod <- suppressWarnings(stats::glm(Y~G+E, family = stats::binomial(link = 'logit'), weights = data$weights, data = data))
+        mod <- suppressWarnings(glm(Y~G+E, family = binomial(link = 'logit'), weights = weights, data = data))
         if(LargePowerApproxi){
           SE <- summary(mod)$coefficients[2,2]
-          return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+          return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
         }
         else{
           compute_power <- function(n){
             ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
             SE = summary(mod)$coefficients[2,2]
             ### Once know this SE of betaG hat, compute its power at this given sample size n:
-            Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+            Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
             Power
           }
           compute_power(n)
@@ -2531,8 +2524,8 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
           ComputeP <- function(beta0){
             set.seed(seed)
             G <- sample(c(0,1,2), size = 10000, replace = T, prob = c(qG^2, 2*pG*qG, pG^2))
-            E <- gamma0 + gammaG * G + stats::rnorm(10000, sd = sigmaError)
-            y <- beta0 + betaG * G + betaE * E + stats::rlogis(10000)
+            E <- gamma0 + gammaG * G + rnorm(10000, sd = sigmaError)
+            y <- beta0 + betaG * G + betaE * E + rlogis(10000)
             P <- mean(ifelse(y > 0, 1, 0))
             P - preva
           }
@@ -2548,9 +2541,9 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
         muE1 <- gamma0 + gammaG * 1
         muE0 <- gamma0
 
-        E2 <- stats::qnorm((1:floor(pG^2 * n) - 0.375)/(floor(pG^2 * n) + 0.25), mean = muE2, sd = sigmaError)
-        E1 <- stats::qnorm((1:floor(2*qG*pG * n) - 0.375)/(floor(2*qG*pG * n) + 0.25), mean = muE1, sd = sigmaError)
-        E0 <- stats::qnorm((1:(n - floor(pG^2 * n) - floor(2*qG*pG * n)) - 0.375)/((n - floor(pG^2 * n) - floor(2*qG*pG * n)) + 0.25), mean = muE0, sd = sigmaError)
+        E2 <- qnorm((1:floor(pG^2 * n) - 0.375)/(floor(pG^2 * n) + 0.25), mean = muE2, sd = sigmaError)
+        E1 <- qnorm((1:floor(2*qG*pG * n) - 0.375)/(floor(2*qG*pG * n) + 0.25), mean = muE1, sd = sigmaError)
+        E0 <- qnorm((1:(n - floor(pG^2 * n) - floor(2*qG*pG * n)) - 0.375)/((n - floor(pG^2 * n) - floor(2*qG*pG * n)) + 0.25), mean = muE0, sd = sigmaError)
 
         E <- c(E2,E1,E0)
 
@@ -2558,18 +2551,18 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
         ## Attach Y into the dataframe, and compute the weight of each observation
         data$Y <- c(rep(1,n), rep(0,n))
         data$weights <- c(ComputeYgivenGE(beta0, betaG, betaE, G = G, E = E, Y = 1), ComputeYgivenGE(beta0, betaG, betaE, G = G, E = E, Y = 0))
-        mod <- suppressWarnings(stats::glm(Y~G+E, family = stats::binomial(link = 'logit'), weights = data$weights, data = data))
+        mod <- suppressWarnings(glm(Y~G+E, family = binomial(link = 'logit'), weights = weights, data = data))
 
         if(LargePowerApproxi){
           SE <- summary(mod)$coefficients[2,2]
-          return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+          return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
         }
         else{
           compute_power <- function(n){
             ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
             SE = summary(mod)$coefficients[2,2]
             ### Once know this SE of betaG hat, compute its power at this given sample size n:
-            Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+            Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
             Power
           }
           compute_power(n)
@@ -2595,8 +2588,8 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
           ComputeP <- function(beta0){
             set.seed(seed)
             G <- sample(c(0,1), size = 10000, replace = T, prob = c(qG,pG))
-            E <- gamma0 + gammaG * G + stats::rnorm(10000, sd = sigmaError)
-            y <- beta0 + betaG * G + betaE * E + stats::rlogis(10000)
+            E <- gamma0 + gammaG * G + rnorm(10000, sd = sigmaError)
+            y <- beta0 + betaG * G + betaE * E + rlogis(10000)
             P <- mean(ifelse(y > 0, 1, 0))
             P - preva
           }
@@ -2612,8 +2605,8 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
         muE0 <- gamma0
 
 
-        E1 <- stats::qnorm((1:floor(pG * n) - 0.375)/(floor(pG * n) + 0.25), mean = muE1, sd = sigmaError)
-        E0 <- stats::qnorm((1:(n - floor(pG * n)) - 0.375)/((n - floor(pG * n)) + 0.25), mean = muE0, sd = sigmaError)
+        E1 <- qnorm((1:floor(pG * n) - 0.375)/(floor(pG * n) + 0.25), mean = muE1, sd = sigmaError)
+        E0 <- qnorm((1:(n - floor(pG * n)) - 0.375)/((n - floor(pG * n)) + 0.25), mean = muE0, sd = sigmaError)
 
 
         E <- c(E1,E0)
@@ -2622,18 +2615,18 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
         ## Attach Y into the dataframe, and compute the weight of each observation
         data$Y <- c(rep(1,n), rep(0,n))
         data$weights <- c(ComputeYgivenGE(beta0, betaG, betaE, G = G, E = E, Y = 1), ComputeYgivenGE(beta0, betaG, betaE, G = G, E = E, Y = 0))
-        mod <- suppressWarnings(stats::glm(Y~G+E, family = stats::binomial(link = 'logit'), weights = data$weights, data = data))
+        mod <- suppressWarnings(glm(Y~G+E, family = binomial(link = 'logit'), weights = weights, data = data))
 
         if(LargePowerApproxi){
           SE <- summary(mod)$coefficients[2,2]
-          return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+          return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
         }
         else{
           compute_power <- function(n){
             ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
             SE = summary(mod)$coefficients[2,2]
             ### Once know this SE of betaG hat, compute its power at this given sample size n:
-            Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+            Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
             Power
           }
           compute_power(n)
@@ -2658,8 +2651,8 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
           ComputeP <- function(beta0){
             set.seed(seed)
             G <- sample(c(0,1), size = 10000, replace = T, prob = c(qG,pG))
-            E <- gamma0 + gammaG * G + stats::rnorm(10000, sd = sigmaError)
-            y <- beta0 + betaG * G + betaE * E + stats::rlogis(10000)
+            E <- gamma0 + gammaG * G + rnorm(10000, sd = sigmaError)
+            y <- beta0 + betaG * G + betaE * E + rlogis(10000)
             P <- mean(ifelse(y > 0, 1, 0))
             P - preva
           }
@@ -2675,8 +2668,8 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
         muE1 <- gamma0 + gammaG * 1
         muE0 <- gamma0
 
-        E1 <- stats::qnorm((1:floor(pG * n) - 0.375)/(floor(pG * n) + 0.25), mean = muE1, sd = sigmaError)
-        E0 <- stats::qnorm((1:(n - floor(pG * n)) - 0.375)/((n - floor(pG * n)) + 0.25), mean = muE0, sd = sigmaError)
+        E1 <- qnorm((1:floor(pG * n) - 0.375)/(floor(pG * n) + 0.25), mean = muE1, sd = sigmaError)
+        E0 <- qnorm((1:(n - floor(pG * n)) - 0.375)/((n - floor(pG * n)) + 0.25), mean = muE0, sd = sigmaError)
 
         E <- c(E1,E0)
 
@@ -2684,18 +2677,18 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
         ## Attach Y into the dataframe, and compute the weight of each observation
         data$Y <- c(rep(1,n), rep(0,n))
         data$weights <- c(ComputeYgivenGE(beta0, betaG, betaE, G = G, E = E, Y = 1), ComputeYgivenGE(beta0, betaG, betaE, G = G, E = E, Y = 0))
-        mod <- suppressWarnings(stats::glm(Y~G+E, family = stats::binomial(link = 'logit'), weights = data$weights, data = data))
+        mod <- suppressWarnings(glm(Y~G+E, family = binomial(link = 'logit'), weights = weights, data = data))
 
         if(LargePowerApproxi){
           SE <- summary(mod)$coefficients[2,2]
-          return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+          return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
         }
         else{
           compute_power <- function(n){
             ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
             SE = summary(mod)$coefficients[2,2]
             ### Once know this SE of betaG hat, compute its power at this given sample size n:
-            Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+            Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
             Power
           }
           compute_power(n)
@@ -2726,17 +2719,17 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
 
         G <- c(rep(2,floor(pG^2 * n)), rep(1,floor(2*qG*pG * n)), rep(0, (n - floor(pG^2 * n) - floor(2*qG*pG * n))))
         data <- data.frame(G = c(G,G), Y = c(rep(1, n), rep(0, n)), weights = c(ComputeYgivenG(beta0, betaG, G, Y = 1),ComputeYgivenG(beta0, betaG, G, Y = 0)))
-        mod <- suppressWarnings(stats::glm(Y~G, family = stats::binomial(), weights = data$weights, data = data))
+        mod <- suppressWarnings(glm(Y~G, family = binomial(), weights = weights, data = data))
         if(LargePowerApproxi){
           SE <- summary(mod)$coefficients[2,2]
-          return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+          return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
         }
         else{
           compute_power <- function(n){
             ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
             SE <- summary(mod)$coefficients[2,2]
             ### Once know this SE of betaG hat, compute its power at this given sample size n:
-            Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+            Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
             Power
           }
           compute_power(n)
@@ -2761,17 +2754,17 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
 
         G <- c(rep(1,floor(pG * n)), rep(0, (n - floor(pG * n))))
         data <- data.frame(G = c(G,G), Y = c(rep(1, n), rep(0, n)), weights = c(ComputeYgivenG(beta0, betaG, G, Y = 1),ComputeYgivenG(beta0, betaG, G, Y = 0)))
-        mod <- suppressWarnings(stats::glm(Y~G, family = stats::binomial(), weights = data$weights, data = data))
+        mod <- suppressWarnings(glm(Y~G, family = binomial(), weights = weights, data = data))
         if(LargePowerApproxi){
           SE <- summary(mod)$coefficients[2,2]
-          return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+          return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
         }
         else{
           compute_power <- function(n){
             ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
             SE <- summary(mod)$coefficients[2,2]
             ### Once know this SE of betaG hat, compute its power at this given sample size n:
-            Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+            Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
             Power
           }
           compute_power(n)
@@ -2795,17 +2788,17 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
 
         G <- c(rep(1,floor(pG * n)), rep(0, (n - floor(pG * n))))
         data <- data.frame(G = c(G,G), Y = c(rep(1, n), rep(0, n)), weights = c(ComputeYgivenG(beta0, betaG, G, Y = 1),ComputeYgivenG(beta0, betaG, G, Y = 0)))
-        mod <- suppressWarnings(stats::glm(Y~G, family = stats::binomial(), weights = data$weights, data = data))
+        mod <- suppressWarnings(glm(Y~G, family = binomial(), weights = weights, data = data))
         if(LargePowerApproxi){
           SE <- summary(mod)$coefficients[2,2]
-          return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+          return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
         }
         else{
           compute_power <- function(n){
             ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
             SE <- summary(mod)$coefficients[2,2]
             ### Once know this SE of betaG hat, compute its power at this given sample size n:
-            Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+            Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
             Power
           }
           compute_power(n)
@@ -2850,14 +2843,14 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
           I <- Matrix::forceSymmetric(I/(SigmaError1^2), uplo = "U")
           if(LargePowerApproxi){
             SE <- sqrt((solve(I)[2,2]))/sqrt(n)
-            return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+            return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
           }
           else{
             compute_power <- function(n){
               ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
               SE = sqrt((solve(I)[2,2]))/sqrt(n)
               ### Once know this SE of betaG hat, compute its power at this given sample size n:
-              Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+              Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
               Power
             }
             compute_power(n)
@@ -2887,14 +2880,14 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
           I <- Matrix::forceSymmetric(I/(SigmaError1^2), uplo = "U")
           if(LargePowerApproxi){
             SE <- sqrt((solve(I)[2,2]))/sqrt(n)
-            return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+            return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
           }
           else{
             compute_power <- function(n){
               ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
               SE = sqrt((solve(I)[2,2]))/sqrt(n)
               ### Once know this SE of betaG hat, compute its power at this given sample size n:
-              Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+              Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
               Power
             }
             compute_power(n)
@@ -2924,14 +2917,14 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
           I <- Matrix::forceSymmetric(I/(SigmaError1^2), uplo = "U")
           if(LargePowerApproxi){
             SE <- sqrt((solve(I)[2,2]))/sqrt(n)
-            return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+            return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
           }
           else{
             compute_power <- function(n){
               ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
               SE = sqrt((solve(I)[2,2]))/sqrt(n)
               ### Once know this SE of betaG hat, compute its power at this given sample size n:
-              Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+              Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
               Power
             }
             compute_power(n)
@@ -2979,14 +2972,14 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
           I <- Matrix::forceSymmetric(I/(SigmaError1^2), uplo = "U")
           if(LargePowerApproxi){
             SE <- sqrt((solve(I)[2,2]))/sqrt(n)
-            return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+            return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
           }
           else{
             compute_power <- function(n){
               ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
               SE = sqrt((solve(I)[2,2]))/sqrt(n)
               ### Once know this SE of betaG hat, compute its power at this given sample size n:
-              Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+              Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
               Power
             }
             compute_power(n)
@@ -3021,14 +3014,14 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
           I <-  Matrix::forceSymmetric(I/(SigmaError1^2), uplo = "U")
           if(LargePowerApproxi){
             SE <- sqrt((solve(I)[2,2]))/sqrt(n)
-            return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+            return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
           }
           else{
             compute_power <- function(n){
               ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
               SE = sqrt((solve(I)[2,2]))/sqrt(n)
               ### Once know this SE of betaG hat, compute its power at this given sample size n:
-              Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+              Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
               Power
             }
             compute_power(n)
@@ -3063,14 +3056,14 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
           I <- Matrix::forceSymmetric(I/(SigmaError1^2), uplo = "U")
           if(LargePowerApproxi){
             SE <- sqrt((solve(I)[2,2]))/sqrt(n)
-            return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+            return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
           }
           else{
             compute_power <- function(n){
               ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
               SE = sqrt((solve(I)[2,2]))/sqrt(n)
               ### Once know this SE of betaG hat, compute its power at this given sample size n:
-              Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+              Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
               Power
             }
             compute_power(n)
@@ -3109,14 +3102,14 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
         I <- I/(SigmaError1^2)
         if(LargePowerApproxi){
           SE <- sqrt((solve(I)[2,2]))/sqrt(n)
-          return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+          return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
         }
         else{
           compute_power <- function(n){
             ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
             SE = sqrt((solve(I)[2,2]))/sqrt(n)
             ### Once know this SE of betaG hat, compute its power at this given sample size n:
-            Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+            Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
             Power
           }
           compute_power(n)
@@ -3152,14 +3145,14 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
           I <- Matrix::forceSymmetric(I/(SigmaError1^2), uplo = "U")
           if(LargePowerApproxi){
             SE <- sqrt((solve(I)[2,2]))/sqrt(n)
-            return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+            return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
           }
           else{
             compute_power <- function(n){
               ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
               SE = sqrt((solve(I)[2,2]))/sqrt(n)
               ### Once know this SE of betaG hat, compute its power at this given sample size n:
-              Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+              Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
               Power
             }
             compute_power(n)
@@ -3184,14 +3177,14 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
           I <- Matrix::forceSymmetric(I/(SigmaError1^2), uplo = "U")
           if(LargePowerApproxi){
             SE <- sqrt((solve(I)[2,2]))/sqrt(n)
-            return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+            return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
           }
           else{
             compute_power <- function(n){
               ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
               SE = sqrt((solve(I)[2,2]))/sqrt(n)
               ### Once know this SE of betaG hat, compute its power at this given sample size n:
-              Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+              Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
               Power
             }
             compute_power(n)
@@ -3216,14 +3209,14 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
           I <- Matrix::forceSymmetric(I/(SigmaError1^2), uplo = "U")
           if(LargePowerApproxi){
             SE <- sqrt((solve(I)[2,2]))/sqrt(n)
-            return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+            return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
           }
           else{
             compute_power <- function(n){
               ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
               SE = sqrt((solve(I)[2,2]))/sqrt(n)
               ### Once know this SE of betaG hat, compute its power at this given sample size n:
-              Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+              Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
               Power
             }
             compute_power(n)
@@ -3265,14 +3258,14 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
           I <- Matrix::forceSymmetric(I/(SigmaError1^2), uplo = "U")
           if(LargePowerApproxi){
             SE <- sqrt((solve(I)[2,2]))/sqrt(n)
-            return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+            return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
           }
           else{
             compute_power <- function(n){
               ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
               SE = sqrt((solve(I)[2,2]))/sqrt(n)
               ### Once know this SE of betaG hat, compute its power at this given sample size n:
-              Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+              Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
               Power
             }
             compute_power(n)
@@ -3302,14 +3295,14 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
           I <-  Matrix::forceSymmetric(I/(SigmaError1^2), uplo = "U")
           if(LargePowerApproxi){
             SE <- sqrt((solve(I)[2,2]))/sqrt(n)
-            return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+            return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
           }
           else{
             compute_power <- function(n){
               ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
               SE = sqrt((solve(I)[2,2]))/sqrt(n)
               ### Once know this SE of betaG hat, compute its power at this given sample size n:
-              Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+              Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
               Power
             }
             compute_power(n)
@@ -3338,14 +3331,14 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
           I <- Matrix::forceSymmetric(I/(SigmaError1^2), uplo = "U")
           if(LargePowerApproxi){
             SE <- sqrt((solve(I)[2,2]))/sqrt(n)
-            return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+            return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
           }
           else{
             compute_power <- function(n){
               ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
               SE = sqrt((solve(I)[2,2]))/sqrt(n)
               ### Once know this SE of betaG hat, compute its power at this given sample size n:
-              Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+              Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
               Power
             }
             compute_power(n)
@@ -3381,14 +3374,14 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
         I <- I/(SigmaError1^2)
         if(LargePowerApproxi){
           SE <- sqrt((solve(I)[2,2]))/sqrt(n)
-          return(stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE))
+          return(pnorm(-qnorm(1-(alpha/2)) + betaG/SE))
         }
         else{
           compute_power <- function(n){
             ### Once know this (expected) single I, scale by dividing sqrt(n): n is sample size
             SE = sqrt((solve(I)[2,2]))/sqrt(n)
             ### Once know this SE of betaG hat, compute its power at this given sample size n:
-            Power = stats::pnorm(-stats::qnorm(1-(alpha/2)) + betaG/SE ) + stats::pnorm(-stats::qnorm(1-(alpha/2)) - betaG/SE)
+            Power = pnorm(-qnorm(1-(alpha/2)) + betaG/SE ) + pnorm(-qnorm(1-(alpha/2)) - betaG/SE)
             Power
           }
           compute_power(n)
@@ -3411,7 +3404,7 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
 #' If covariate is not "none", a parameter "gammaG" needs to be defined to capture the dependence between the SNP and the covariate (through linear regression model if covariate is continuous, and logistic model if covariate is binary). If covariate is "binary", list needs to contains "pE" that defines the frequency of the covariate. If it is continuous, list needs to contain "muE" and "sigmaE" to define
 #' its mean and standard deviation. The MAF is defined as "pG", with HWE assumed to hold.
 #' @param PowerAim An numeric value between 0 and 1 that indicates the aimed power of the study.
-#' @param response A string of either "binary" or "continuous", indicating the type of response/trait variable in the model, by default is "binary"
+#' @param response A string of either "binary" or "continuous", indicating the type of respone/trait variable in the model, by default is "binary"
 #' @param covariate A string of either "binary", "continuous" or "none" indicating the type of covariate E in the model, by default is "binary".
 #' @param mode A string of either "additive", "dominant" or "recessive", indicating the genetic mode, by default is "additive".
 #' @param alpha A numeric value that denotes the significance level used in the study, by default is 0.05.
@@ -3419,14 +3412,10 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
 #' @param upper.lim.n An integer number that indicates the largest sample size to be considered.
 #' @param searchSizeGamma0 The interval radius for the numerical search of gamma0, by default is 8. Setting to higher values may solve some numerical problems at the cost of longer runtime.
 #' @param searchSizeBeta0 The interval radius for the numerical search of beta0, by default is 8. Setting to higher values may solve some numerical problems at the cost of longer runtime.
-#' @param seed An integer number that indicates the seed used for the simulation to compute the approximate fisher information matrix, by default is 123.
-#' @param LargePowerApproxi TRUE or FALSE indicates whether to use the large power approximation formula.
 #' @return The sample size required to achieve the aimed power.
 #' @examples
-#' parameters <- list(TraitMean = 0.3, TraitSD = 1, pG = 0.2, betaG = log(1.1), betaE = log(1.1),
-#' muE = 0, sigmaE = 3, gammaG = log(2.1))
-#' SPCompute:::Compute_Size_Expanded(parameters, PowerAim = 0.8, response = "continuous",
-#' covariate = "continuous", mode = "additive")
+#' parameters <- list(TraitMean = 0.3, TraitSD = 1, pG = 0.2, betaG = log(1.1), betaE = log(1.1), muE = 0, sigmaE = 3, gammaG = log(2.1))
+#' Compute_Size_Expanded(parameters, PowerAim = 0.8, B = 10000, "continuous", "continuous")
 
 Compute_Size_Expanded <- function(parameters, PowerAim, response, covariate, mode, alpha = 0.05, seed = 123, LargePowerApproxi = F, lower.lim.n = 1000, upper.lim.n = 800000, searchSizeGamma0 = 100, searchSizeBeta0 = 100){
   if(check_parameters(parameters, response, covariate) != T){return(message("Define the above missing parameters before continuing"))}
@@ -3456,7 +3445,7 @@ Compute_Size_Expanded <- function(parameters, PowerAim, response, covariate, mod
 #' its mean and standard deviation. The MAF is defined as "pG", with HWE assumed to hold.
 #' @param PowerAim An numeric value between 0 and 1 that indicates the aimed power of the study.
 #' @param B An integer number that indicates the number of simulated sample to approximate the fisher information matrix, by default is 10000.
-#' @param response A string of either "binary" or "continuous", indicating the type of response/trait variable in the model, by default is "binary"
+#' @param response A string of either "binary" or "continuous", indicating the type of respone/trait variable in the model, by default is "binary"
 #' @param covariate A string of either "binary", "continuous" or "none" indicating the type of covariate E in the model, by default is "binary".
 #' @param mode A string of either "additive", "dominant" or "recessive", indicating the genetic mode, by default is "additive".
 #' @param alpha A numeric value that denotes the significance level used in the study, by default is 0.05.
@@ -3465,10 +3454,8 @@ Compute_Size_Expanded <- function(parameters, PowerAim, response, covariate, mod
 #' @param upper.lim.n An integer number that indicates the largest sample size to be considered.
 #' @return The sample size required to achieve the aimed power.
 #' @examples
-#' parameters <- list(TraitMean = 0.3, TraitSD = 1, pG = 0.2, betaG = log(1.1),
-#' betaE = log(1.1), muE = 0, sigmaE = 3, gammaG = log(2.1))
-#' SPCompute:::Compute_Size_Sim_simpler(parameters, PowerAim = 0.8,
-#' B = 10000, "continuous", "continuous")
+#' parameters <- list(TraitMean = 0.3, TraitSD = 1, pG = 0.2, betaG = log(1.1), betaE = log(1.1), muE = 0, sigmaE = 3, gammaG = log(2.1))
+#' Compute_Size_Sim_simpler(parameters, PowerAim = 0.8, B = 10000, "continuous", "continuous")
 Compute_Size_Sim_simpler <- function(parameters, PowerAim, B = 10000, response = "binary", covariate = "binary", mode = "additive", alpha = 0.05, seed = 123, LargePowerApproxi = F, upper.lim.n = 800000){
   if(check_parameters(parameters, response, covariate) != T){return(message("Define the above missing parameters before continuing"))}
   if(check_parameters(parameters, response, covariate) != T){return(message("Define the above missing parameters before continuing"))}
@@ -3507,13 +3494,10 @@ Compute_Size_Sim_simpler <- function(parameters, PowerAim, B = 10000, response =
 #' @param B An integer number that indicates the number of simulated sample to approximate the fisher information matrix, by default is 10000 (Should only be changed if computation uses semi-simulation method).
 #' @return The power that can be achieved at the given sample size.
 #' @examples
-#' parameters <- list(TraitMean = 0.3, TraitSD = 1, pG = 0.2, betaG = log(1.1),
-#' betaE = log(1.1), muE = 0, sigmaE = 3, gammaG = log(2.1))
-#'
-#' Compute_Power(parameters, n = 1000, response = "continuous",
-#' covariate = "continuous", method = "semi-sim")
-
-#' @export
+#' parameters <- list(TraitMean = 0.3, TraitSD = 1, pG = 0.2, betaG = log(1.1), betaE = log(1.1), muE = 0, sigmaE = 3, gammaG = log(2.1))
+#' Compute_Power(parameters, n = 1000, "continuous", "continuous", method = "sim")
+#' parameters <- list(preva = 0.1, pG = 0.2, betaG = log(1.1), betaE = log(1.1), muE = 0, sigmaE = 3, gammaG = log(2.1))
+#' Compute_Power(parameters, n = 1000, response ="binary", "continuous", method = "expand")
 Compute_Power <- function(parameters, n, response = "binary", covariate = "binary", mode = "additive", alpha = 0.05, seed = 123, LargePowerApproxi = F, searchSizeGamma0 = 100, searchSizeBeta0 = 100, B = 10000, method = "semi-sim"){
   if(method == "semi-sim"){
     Compute_Power_Sim(parameters, n, B = B, response = response, covariate = covariate, mode = mode, alpha = alpha, seed = seed, LargePowerApproxi = LargePowerApproxi, searchSizeGamma0 = searchSizeGamma0, searchSizeBeta0 = searchSizeBeta0)
@@ -3525,6 +3509,7 @@ Compute_Power <- function(parameters, n, response = "binary", covariate = "binar
     return(message("Error: The selected method is not defined."))
   }
 }
+
 
 
 
@@ -3551,12 +3536,14 @@ Compute_Power <- function(parameters, n, response = "binary", covariate = "binar
 #' @param upper.lim.n An integer number that indicates the largest sample size to be considered.
 #' @return The required sample size.
 #' @examples
-#' parameters <- list(TraitMean = 0.3, TraitSD = 1, pG = 0.2, betaG = log(1.1),
-#' betaE = log(1.1), muE = 0, sigmaE = 3, gammaG = log(2.1))
-#'
-#' Compute_Size(parameters, PowerAim = 0.8, response = "continuous",
-#' covariate = "continuous", method = "semi-sim")
-#' @export
+#' parameters <- list(TraitMean = 0.3, TraitSD = 1, pG = 0.2, betaG = log(1.1), betaE = log(1.1), muE = 0, sigmaE = 3, gammaG = log(2.1))
+#' Compute_Size(parameters, PowerAim = 0.8, "continuous", "continuous", method = "semi-sim")
+#' parameters <- list(beta0 = 0.3, ResidualSD = 1, pG = 0.2, betaG = log(1.1), betaE = log(1.1), muE = 0, sigmaE = 3, gammaG = log(2.1))
+#' Compute_Size(parameters, PowerAim = 0.8, "continuous", "continuous", method = "expand")
+#' parameters <- list(preva = 0.1, pG = 0.2, betaG = log(1.1), betaE = log(1.1), muE = 0, sigmaE = 3, gammaG = log(2.1))
+#' Compute_Size(parameters, PowerAim = 0.8, response ="binary", "continuous", method = "expand")
+#' Compute_Size(parameters, PowerAim = 0.8, response ="binary", "continuous", method = "semi-sim")
+
 Compute_Size <- function(parameters, PowerAim, response = "binary", covariate = "binary", mode = "additive", alpha = 0.05, seed = 123, LargePowerApproxi = F, searchSizeGamma0 = 100, searchSizeBeta0 = 100, B = 10000, method = "semi-sim", lower.lim.n = 1000, upper.lim.n = 800000){
   if(method == "semi-sim"){
     Compute_Size_Sim(parameters = parameters, PowerAim = PowerAim, B = B, response = response, covariate = covariate, mode = mode, alpha = alpha, seed = seed, LargePowerApproxi = LargePowerApproxi, searchSizeGamma0 = searchSizeGamma0, searchSizeBeta0 = searchSizeBeta0, upper.lim.n = upper.lim.n)
