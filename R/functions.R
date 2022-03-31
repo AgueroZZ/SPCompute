@@ -128,8 +128,8 @@ check_parameters <- function(parameters, response, covariate){
 #' muE = 0, sigmaE = 3, gammaG = log(2.1))
 #' SPCompute:::Compute_Power_Sim(parameters, n = 1000, B = 10000, "continuous", "continuous")
 #' @noRd
-Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", covariate = "binary", mode = "additive", alpha = 0.05, seed = 123, LargePowerApproxi = F, searchSizeGamma0 = 8, searchSizeBeta0 = 8){
-  if(check_parameters(parameters, response, covariate) != T){return(message("Define the above missing parameters before continuing"))}
+Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", covariate = "binary", mode = "additive", alpha = 0.05, seed = 123, LargePowerApproxi = FALSE, searchSizeGamma0 = 8, searchSizeBeta0 = 8){
+  if(check_parameters(parameters, response, covariate) != TRUE){return(message("Define the above missing parameters before continuing"))}
   if(response == "binary"){
     if(covariate == "binary"){
       ### Compute probability
@@ -178,7 +178,7 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
         I <- matrix(data = 0, nrow = 3, ncol = 3)
         set.seed(seed)
         for (i in 1:B) {
-          G <- sample(c(0,1,2), size = 1, replace = T, prob = c(qG^2, 2*pG*qG, pG^2))
+          G <- sample(c(0,1,2), size = 1, replace = TRUE, prob = c(qG^2, 2*pG*qG, pG^2))
           E_lat <- gamma0 + gammaG*G + stats::rlogis(1)
           E <- ifelse(E_lat>=0, 1, 0)
           X <- matrix(c(1,G,E), ncol = 1)
@@ -231,7 +231,7 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
         I <- matrix(data = 0, nrow = 3, ncol = 3)
         set.seed(seed)
         for (i in 1:B) {
-          G <- sample(c(0,1), size = 1, replace = T, prob = c(qG,pG))
+          G <- sample(c(0,1), size = 1, replace = TRUE, prob = c(qG,pG))
           E_lat <- gamma0 + gammaG*G + stats::rlogis(1)
           E <- ifelse(E_lat>=0, 1, 0)
           X <- matrix(c(1,G,E), ncol = 1)
@@ -287,7 +287,7 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
         set.seed(seed)
 
         for (i in 1:B) {
-          G <- sample(c(0,1), size = 1, replace = T, prob = c(qG,pG))
+          G <- sample(c(0,1), size = 1, replace = TRUE, prob = c(qG,pG))
           E_lat <- gamma0 + gammaG*G + stats::rlogis(1)
           E <- ifelse(E_lat>=0, 1, 0)
           X <- matrix(c(1,G,E), ncol = 1)
@@ -336,7 +336,7 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
           qG <- 1 - pG
           ComputeP <- function(beta0){
             set.seed(seed)
-            G <- sample(c(0,1,2), size = B, replace = T, prob = c(qG^2, 2*pG*qG, pG^2))
+            G <- sample(c(0,1,2), size = B, replace = TRUE, prob = c(qG^2, 2*pG*qG, pG^2))
             E <- gamma0 + gammaG * G + stats::rnorm(B, sd = sigmaError)
             y <- beta0 + betaG * G + betaE * E + stats::rlogis(B)
             P <- mean(ifelse(y > 0, 1, 0))
@@ -348,7 +348,7 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
         ### Simulate for SE: by averaging B times
         set.seed(seed)
         for (i in 1:B) {
-          G <- sample(c(0,1,2), size = 1, replace = T, prob = c(qG^2,2*pG*qG, pG^2))
+          G <- sample(c(0,1,2), size = 1, replace = TRUE, prob = c(qG^2,2*pG*qG, pG^2))
           E <- gamma0 + gammaG*G + stats::rnorm(1,sd = sigmaError)
           X <- matrix(c(1,G,E), ncol = 1)
           eta <- beta0 + betaG*G + betaE*E
@@ -390,7 +390,7 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
           qG <- 1 - pG
           ComputeP <- function(beta0){
             set.seed(seed)
-            G <- sample(c(0,1), size = B, replace = T, prob = c(qG,pG))
+            G <- sample(c(0,1), size = B, replace = TRUE, prob = c(qG,pG))
             E <- gamma0 + gammaG * G + stats::rnorm(B, sd = sigmaError)
             y <- beta0 + betaG * G + betaE * E + stats::rlogis(B)
             P <- mean(ifelse(y > 0, 1, 0))
@@ -405,7 +405,7 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
         set.seed(seed)
 
         for (i in 1:B) {
-          G <- sample(c(0,1), size = 1, replace = T, prob = c(qG, pG))
+          G <- sample(c(0,1), size = 1, replace = TRUE, prob = c(qG, pG))
           E <- gamma0 + gammaG*G + stats::rnorm(1,sd = sigmaError)
           X <- matrix(c(1,G,E), ncol = 1)
           eta <- beta0 + betaG*G + betaE*E
@@ -445,7 +445,7 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
           qG <- 1 - pG
           ComputeP <- function(beta0){
             set.seed(seed)
-            G <- sample(c(0,1), size = B, replace = T, prob = c(qG,pG))
+            G <- sample(c(0,1), size = B, replace = TRUE, prob = c(qG,pG))
             E <- gamma0 + gammaG * G + stats::rnorm(B, sd = sigmaError)
             y <- beta0 + betaG * G + betaE * E + stats::rlogis(B)
             P <- mean(ifelse(y > 0, 1, 0))
@@ -460,7 +460,7 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
         set.seed(seed)
 
         for (i in 1:B) {
-          G <- sample(c(0,1), size = 1, replace = T, prob = c(qG, pG))
+          G <- sample(c(0,1), size = 1, replace = TRUE, prob = c(qG, pG))
           E <- gamma0 + gammaG*G + stats::rnorm(1,sd = sigmaError)
           X <- matrix(c(1,G,E), ncol = 1)
           eta <- beta0 + betaG*G + betaE*E
@@ -503,7 +503,7 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
         I <- matrix(data = 0, nrow = 2, ncol = 2)
         set.seed(seed)
         for (i in 1:B) {
-          G <- sample(c(0,1,2), size = 1, replace = T, prob = c(qG^2,2*pG*qG, pG^2))
+          G <- sample(c(0,1,2), size = 1, replace = TRUE, prob = c(qG^2,2*pG*qG, pG^2))
           X <- matrix(c(1,G), ncol = 1)
           eta <- beta0 + betaG*G
           weight <- stats::dlogis(eta)
@@ -544,7 +544,7 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
         set.seed(seed)
 
         for (i in 1:B) {
-          G <- sample(c(0,1), size = 1, replace = T, prob = c(qG,pG))
+          G <- sample(c(0,1), size = 1, replace = TRUE, prob = c(qG,pG))
           X <- matrix(c(1,G), ncol = 1)
           eta <- beta0 + betaG*G
           weight <- stats::dlogis(eta)
@@ -584,7 +584,7 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
         set.seed(seed)
 
         for (i in 1:B) {
-          G <- sample(c(0,1), size = 1, replace = T, prob = c(qG,pG))
+          G <- sample(c(0,1), size = 1, replace = TRUE, prob = c(qG,pG))
           X <- matrix(c(1,G), ncol = 1)
           eta <- beta0 + betaG*G
           weight <- stats::dlogis(eta)
@@ -1225,8 +1225,8 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
 #' betaE = log(1.1), muE = 0, sigmaE = 3, gammaG = log(2.1))
 #' SPCompute:::Compute_Size_Sim(parameters, PowerAim = 0.8, B = 10000, "continuous", "continuous")
 #' @noRd
-Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary", covariate = "binary", mode = "additive", alpha = 0.05, seed = 123, LargePowerApproxi = F, upper.lim.n = 800000, searchSizeGamma0 = 8, searchSizeBeta0 = 8){
-  if(check_parameters(parameters, response, covariate) != T){return(message("Define the above missing parameters before continuing"))}
+Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary", covariate = "binary", mode = "additive", alpha = 0.05, seed = 123, LargePowerApproxi = FALSE, upper.lim.n = 800000, searchSizeGamma0 = 8, searchSizeBeta0 = 8){
+  if(check_parameters(parameters, response, covariate) != TRUE){return(message("Define the above missing parameters before continuing"))}
   if(response == "binary"){
     if(covariate == "binary"){
       ### Compute probability
@@ -1275,7 +1275,7 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
         I <- matrix(data = 0, nrow = 3, ncol = 3)
         set.seed(seed)
         for (i in 1:B) {
-          G <- sample(c(0,1,2), size = 1, replace = T, prob = c(qG^2, 2*pG*qG, pG^2))
+          G <- sample(c(0,1,2), size = 1, replace = TRUE, prob = c(qG^2, 2*pG*qG, pG^2))
           E_lat <- gamma0 + gammaG*G + stats::rlogis(1)
           E <- ifelse(E_lat>=0, 1, 0)
           X <- matrix(c(1,G,E), ncol = 1)
@@ -1328,7 +1328,7 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
         I <- matrix(data = 0, nrow = 3, ncol = 3)
         set.seed(seed)
         for (i in 1:B) {
-          G <- sample(c(0,1), size = 1, replace = T, prob = c(qG,pG))
+          G <- sample(c(0,1), size = 1, replace = TRUE, prob = c(qG,pG))
           E_lat <- gamma0 + gammaG*G + stats::rlogis(1)
           E <- ifelse(E_lat>=0, 1, 0)
           X <- matrix(c(1,G,E), ncol = 1)
@@ -1384,7 +1384,7 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
         set.seed(seed)
 
         for (i in 1:B) {
-          G <- sample(c(0,1), size = 1, replace = T, prob = c(qG,pG))
+          G <- sample(c(0,1), size = 1, replace = TRUE, prob = c(qG,pG))
           E_lat <- gamma0 + gammaG*G + stats::rlogis(1)
           E <- ifelse(E_lat>=0, 1, 0)
           X <- matrix(c(1,G,E), ncol = 1)
@@ -1434,7 +1434,7 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
           qG <- 1 - pG
           ComputeP <- function(beta0){
             set.seed(seed)
-            G <- sample(c(0,1,2), size = B, replace = T, prob = c(qG^2, 2*pG*qG, pG^2))
+            G <- sample(c(0,1,2), size = B, replace = TRUE, prob = c(qG^2, 2*pG*qG, pG^2))
             E <- gamma0 + gammaG * G + stats::rnorm(B, sd = sigmaError)
             y <- beta0 + betaG * G + betaE * E + stats::rlogis(B)
             P <- mean(ifelse(y > 0, 1, 0))
@@ -1446,7 +1446,7 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
         ### Simulate for SE: by averaging B times
         set.seed(seed)
         for (i in 1:B) {
-          G <- sample(c(0,1,2), size = 1, replace = T, prob = c(qG^2,2*pG*qG, pG^2))
+          G <- sample(c(0,1,2), size = 1, replace = TRUE, prob = c(qG^2,2*pG*qG, pG^2))
           E <- gamma0 + gammaG*G + stats::rnorm(1,sd = sigmaError)
           X <- matrix(c(1,G,E), ncol = 1)
           eta <- beta0 + betaG*G + betaE*E
@@ -1489,7 +1489,7 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
           qG <- 1 - pG
           ComputeP <- function(beta0){
             set.seed(seed)
-            G <- sample(c(0,1), size = B, replace = T, prob = c(qG,pG))
+            G <- sample(c(0,1), size = B, replace = TRUE, prob = c(qG,pG))
             E <- gamma0 + gammaG * G + stats::rnorm(B, sd = sigmaError)
             y <- beta0 + betaG * G + betaE * E + stats::rlogis(B)
             P <- mean(ifelse(y > 0, 1, 0))
@@ -1504,7 +1504,7 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
         set.seed(seed)
 
         for (i in 1:B) {
-          G <- sample(c(0,1), size = 1, replace = T, prob = c(qG, pG))
+          G <- sample(c(0,1), size = 1, replace = TRUE, prob = c(qG, pG))
           E <- gamma0 + gammaG*G + stats::rnorm(1,sd = sigmaError)
           X <- matrix(c(1,G,E), ncol = 1)
           eta <- beta0 + betaG*G + betaE*E
@@ -1544,7 +1544,7 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
           qG <- 1 - pG
           ComputeP <- function(beta0){
             set.seed(seed)
-            G <- sample(c(0,1), size = B, replace = T, prob = c(qG,pG))
+            G <- sample(c(0,1), size = B, replace = TRUE, prob = c(qG,pG))
             E <- gamma0 + gammaG * G + stats::rnorm(B, sd = sigmaError)
             y <- beta0 + betaG * G + betaE * E + stats::rlogis(B)
             P <- mean(ifelse(y > 0, 1, 0))
@@ -1559,7 +1559,7 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
         set.seed(seed)
 
         for (i in 1:B) {
-          G <- sample(c(0,1), size = 1, replace = T, prob = c(qG, pG))
+          G <- sample(c(0,1), size = 1, replace = TRUE, prob = c(qG, pG))
           E <- gamma0 + gammaG*G + stats::rnorm(1,sd = sigmaError)
           X <- matrix(c(1,G,E), ncol = 1)
           eta <- beta0 + betaG*G + betaE*E
@@ -1602,7 +1602,7 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
         I <- matrix(data = 0, nrow = 2, ncol = 2)
         set.seed(seed)
         for (i in 1:B) {
-          G <- sample(c(0,1,2), size = 1, replace = T, prob = c(qG^2,2*pG*qG, pG^2))
+          G <- sample(c(0,1,2), size = 1, replace = TRUE, prob = c(qG^2,2*pG*qG, pG^2))
           X <- matrix(c(1,G), ncol = 1)
           eta <- beta0 + betaG*G
           weight <- stats::dlogis(eta)
@@ -1643,7 +1643,7 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
         set.seed(seed)
 
         for (i in 1:B) {
-          G <- sample(c(0,1), size = 1, replace = T, prob = c(qG,pG))
+          G <- sample(c(0,1), size = 1, replace = TRUE, prob = c(qG,pG))
           X <- matrix(c(1,G), ncol = 1)
           eta <- beta0 + betaG*G
           weight <- stats::dlogis(eta)
@@ -1683,7 +1683,7 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
         set.seed(seed)
 
         for (i in 1:B) {
-          G <- sample(c(0,1), size = 1, replace = T, prob = c(qG,pG))
+          G <- sample(c(0,1), size = 1, replace = TRUE, prob = c(qG,pG))
           X <- matrix(c(1,G), ncol = 1)
           eta <- beta0 + betaG*G
           weight <- stats::dlogis(eta)
@@ -2320,8 +2320,8 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
 #' muE = 0, sigmaE = 3, gammaG = log(2.1))
 #' SPCompute:::Compute_Power_Expanded(parameters, n = 1000, "continuous", "continuous")
 #' @noRd
-Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate = "binary", mode = "additive", alpha = 0.05, seed = 123, LargePowerApproxi = F, searchSizeGamma0 = 100, searchSizeBeta0 = 100){
-  if(check_parameters(parameters, response, covariate) != T){return(message("Define the above missing parameters before continuing"))}
+Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate = "binary", mode = "additive", alpha = 0.05, seed = 123, LargePowerApproxi = FALSE, searchSizeGamma0 = 100, searchSizeBeta0 = 100){
+  if(check_parameters(parameters, response, covariate) != TRUE){return(message("Define the above missing parameters before continuing"))}
   if(response == "binary"){
     if(covariate == "binary"){
       ### Compute probability
@@ -2533,7 +2533,7 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
           qG <- 1 - pG
           ComputeP <- function(beta0){
             set.seed(seed)
-            G <- sample(c(0,1,2), size = 10000, replace = T, prob = c(qG^2, 2*pG*qG, pG^2))
+            G <- sample(c(0,1,2), size = 10000, replace = TRUE, prob = c(qG^2, 2*pG*qG, pG^2))
             E <- gamma0 + gammaG * G + stats::rnorm(10000, sd = sigmaError)
             y <- beta0 + betaG * G + betaE * E + stats::rlogis(10000)
             P <- mean(ifelse(y > 0, 1, 0))
@@ -2597,7 +2597,7 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
           qG <- 1 - pG
           ComputeP <- function(beta0){
             set.seed(seed)
-            G <- sample(c(0,1), size = 10000, replace = T, prob = c(qG,pG))
+            G <- sample(c(0,1), size = 10000, replace = TRUE, prob = c(qG,pG))
             E <- gamma0 + gammaG * G + stats::rnorm(10000, sd = sigmaError)
             y <- beta0 + betaG * G + betaE * E + stats::rlogis(10000)
             P <- mean(ifelse(y > 0, 1, 0))
@@ -2660,7 +2660,7 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
           qG <- 1 - pG
           ComputeP <- function(beta0){
             set.seed(seed)
-            G <- sample(c(0,1), size = 10000, replace = T, prob = c(qG,pG))
+            G <- sample(c(0,1), size = 10000, replace = TRUE, prob = c(qG,pG))
             E <- gamma0 + gammaG * G + stats::rnorm(10000, sd = sigmaError)
             y <- beta0 + betaG * G + betaE * E + stats::rlogis(10000)
             P <- mean(ifelse(y > 0, 1, 0))
@@ -3431,8 +3431,8 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
 #' SPCompute:::Compute_Size_Expanded(parameters, PowerAim = 0.8, response = "continuous",
 #' covariate = "continuous", mode = "additive")
 #' @noRd
-Compute_Size_Expanded <- function(parameters, PowerAim, response, covariate, mode, alpha = 0.05, seed = 123, LargePowerApproxi = F, lower.lim.n = 1000, upper.lim.n = 800000, searchSizeGamma0 = 100, searchSizeBeta0 = 100){
-  if(check_parameters(parameters, response, covariate) != T){return(message("Define the above missing parameters before continuing"))}
+Compute_Size_Expanded <- function(parameters, PowerAim, response, covariate, mode, alpha = 0.05, seed = 123, LargePowerApproxi = FALSE, lower.lim.n = 1000, upper.lim.n = 800000, searchSizeGamma0 = 100, searchSizeBeta0 = 100){
+  if(check_parameters(parameters, response, covariate) != TRUE){return(message("Define the above missing parameters before continuing"))}
   compute_power_diff <- function(n){
     ### Once know this SE of betaG hat, compute its power at this given sample size n:
     Power = Compute_Power_Expanded(parameters = parameters, n = n, response = response, covariate = covariate, mode = mode, alpha = alpha, seed = seed, LargePowerApproxi = LargePowerApproxi)
@@ -3473,9 +3473,9 @@ Compute_Size_Expanded <- function(parameters, PowerAim, response, covariate, mod
 #' SPCompute:::Compute_Size_Sim_simpler(parameters, PowerAim = 0.8,
 #' B = 10000, "continuous", "continuous")
 #' @noRd
-Compute_Size_Sim_simpler <- function(parameters, PowerAim, B = 10000, response = "binary", covariate = "binary", mode = "additive", alpha = 0.05, seed = 123, LargePowerApproxi = F, upper.lim.n = 800000){
-  if(check_parameters(parameters, response, covariate) != T){return(message("Define the above missing parameters before continuing"))}
-  if(check_parameters(parameters, response, covariate) != T){return(message("Define the above missing parameters before continuing"))}
+Compute_Size_Sim_simpler <- function(parameters, PowerAim, B = 10000, response = "binary", covariate = "binary", mode = "additive", alpha = 0.05, seed = 123, LargePowerApproxi = FALSE, upper.lim.n = 800000){
+  if(check_parameters(parameters, response, covariate) != TRUE){return(message("Define the above missing parameters before continuing"))}
+  if(check_parameters(parameters, response, covariate) != TRUE){return(message("Define the above missing parameters before continuing"))}
   compute_power_diff <- function(n){
     ### Once know this SE of betaG hat, compute its power at this given sample size n:
     Power = Compute_Power_Sim(parameters, n, B = B, response = response, covariate = covariate, mode = mode, alpha = alpha, seed = seed, LargePowerApproxi = LargePowerApproxi)
@@ -3518,7 +3518,7 @@ Compute_Size_Sim_simpler <- function(parameters, PowerAim, B = 10000, response =
 #' covariate = "continuous", method = "semi-sim")
 
 #' @export
-Compute_Power <- function(parameters, n, response = "binary", covariate = "binary", mode = "additive", alpha = 0.05, seed = 123, LargePowerApproxi = F, searchSizeGamma0 = 100, searchSizeBeta0 = 100, B = 10000, method = "semi-sim"){
+Compute_Power <- function(parameters, n, response = "binary", covariate = "binary", mode = "additive", alpha = 0.05, seed = 123, LargePowerApproxi = FALSE, searchSizeGamma0 = 100, searchSizeBeta0 = 100, B = 10000, method = "semi-sim"){
   if(method == "semi-sim"){
     Compute_Power_Sim(parameters, n, B = B, response = response, covariate = covariate, mode = mode, alpha = alpha, seed = seed, LargePowerApproxi = LargePowerApproxi, searchSizeGamma0 = searchSizeGamma0, searchSizeBeta0 = searchSizeBeta0)
   }
@@ -3561,7 +3561,7 @@ Compute_Power <- function(parameters, n, response = "binary", covariate = "binar
 #' Compute_Size(parameters, PowerAim = 0.8, response = "continuous",
 #' covariate = "continuous", method = "semi-sim")
 #' @export
-Compute_Size <- function(parameters, PowerAim, response = "binary", covariate = "binary", mode = "additive", alpha = 0.05, seed = 123, LargePowerApproxi = F, searchSizeGamma0 = 100, searchSizeBeta0 = 100, B = 10000, method = "semi-sim", lower.lim.n = 1000, upper.lim.n = 800000){
+Compute_Size <- function(parameters, PowerAim, response = "binary", covariate = "binary", mode = "additive", alpha = 0.05, seed = 123, LargePowerApproxi = FALSE, searchSizeGamma0 = 100, searchSizeBeta0 = 100, B = 10000, method = "semi-sim", lower.lim.n = 1000, upper.lim.n = 800000){
   if(method == "semi-sim"){
     Compute_Size_Sim(parameters = parameters, PowerAim = PowerAim, B = B, response = response, covariate = covariate, mode = mode, alpha = alpha, seed = seed, LargePowerApproxi = LargePowerApproxi, searchSizeGamma0 = searchSizeGamma0, searchSizeBeta0 = searchSizeBeta0, upper.lim.n = upper.lim.n)
   }

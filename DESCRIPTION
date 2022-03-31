@@ -1,11 +1,11 @@
 Type: Package
 Package: SPCompute
-Title: Compute Power or Sample Size for GWAS, that Accounts the
-    Covariate Effect under Different Scenarios
+Title: Compute Power or Sample Size for GWAS with
+    Covariate Effect
 Version: 1.0.1
 Author: Ziang Zhang
 Maintainer: Ziang Zhang <aguero.zhang@mail.utoronto.ca>
-Description: This R package computes required sample size or
+Description: Fast computation of the required sample size or the
     achieved power, for GWAS studies with different types of covariate
     effects and different types of covariate-gene dependency structure.
     For the detailed description of the methodology, see Zhang (2022)
