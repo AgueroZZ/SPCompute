@@ -12,7 +12,7 @@ Compute_Size(
   mode = "additive",
   alpha = 0.05,
   seed = 123,
-  LargePowerApproxi = F,
+  LargePowerApproxi = FALSE,
   searchSizeGamma0 = 100,
   searchSizeBeta0 = 100,
   B = 10000,
