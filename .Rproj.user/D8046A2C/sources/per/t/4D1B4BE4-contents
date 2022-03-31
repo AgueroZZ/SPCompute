@@ -162,7 +162,7 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
           stats::uniroot(ComputePE, c(-searchSizeGamma0, searchSizeGamma0))$root
         }
         ### Solve for beta0
-        solveForbeta0 <- function(preva, betaG, betaE, pG, pE, gammaG){
+        solveForbeta0_add <- function(preva, betaG, betaE, pG, pE, gammaG){
           qG <- 1 - pG
           gamma0 <- solveForgamma0(pE,gammaG, pG)
           ComputeP <- function(beta0){
@@ -174,7 +174,7 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
           stats::uniroot(ComputeP, c(-searchSizeBeta0, searchSizeBeta0))$root
         }
         gamma0 <- solveForgamma0(pE,gammaG, pG)
-        beta0 <- solveForbeta0(preva, betaG, betaE, pG, pE, gammaG)
+        beta0 <- solveForbeta0_add(preva, betaG, betaE, pG, pE, gammaG)
         I <- matrix(data = 0, nrow = 3, ncol = 3)
         set.seed(seed)
         for (i in 1:B) {
@@ -216,7 +216,7 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
           stats::uniroot(ComputePE, c(-searchSizeGamma0, searchSizeGamma0))$root
         }
         ### Solve for beta0
-        solveForbeta0 <- function(preva, betaG, betaE, pG, pE, gammaG){
+        solveForbeta0_rec <- function(preva, betaG, betaE, pG, pE, gammaG){
           qG <- 1 - pG
           gamma0 <- solveForgamma0(pE,gammaG, pG)
           ComputeP <- function(beta0){
@@ -227,7 +227,7 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
           stats::uniroot(ComputeP, c(-searchSizeBeta0, searchSizeBeta0))$root
         }
         gamma0 <- solveForgamma0(pE,gammaG, pG)
-        beta0 <- solveForbeta0(preva, betaG, betaE, pG, pE, gammaG)
+        beta0 <- solveForbeta0_rec(preva, betaG, betaE, pG, pE, gammaG)
         I <- matrix(data = 0, nrow = 3, ncol = 3)
         set.seed(seed)
         for (i in 1:B) {
@@ -271,7 +271,7 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
           stats::uniroot(ComputePE, c(-searchSizeGamma0, searchSizeGamma0))$root
         }
         ### Solve for beta0
-        solveForbeta0 <- function(preva, betaG, betaE, pG, pE, gammaG){
+        solveForbeta0_dom <- function(preva, betaG, betaE, pG, pE, gammaG){
           qG <- 1 - pG
           gamma0 <- solveForgamma0(pE,gammaG, pG)
           ComputeP <- function(beta0){
@@ -282,7 +282,7 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
           stats::uniroot(ComputeP, c(-searchSizeBeta0, searchSizeBeta0))$root
         }
         gamma0 <- solveForgamma0(pE,gammaG, pG)
-        beta0 <- solveForbeta0(preva, betaG, betaE, pG, pE, gammaG)
+        beta0 <- solveForbeta0_dom(preva, betaG, betaE, pG, pE, gammaG)
         I <- matrix(data = 0, nrow = 3, ncol = 3)
         set.seed(seed)
 
@@ -332,7 +332,7 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
         if((sigmaE^2) <= (gammaG^2) * varG){return(message("Error: SigmaE must be larger to be compatible with other parameters"))}
         sigmaError <- sqrt(sigmaE^2 - (gammaG^2) * varG)
 
-        solveForbeta0 <- function(preva, betaG, betaE, pG, gammaG){
+        solveForbeta0_add_con <- function(preva, betaG, betaE, pG, gammaG){
           qG <- 1 - pG
           ComputeP <- function(beta0){
             set.seed(seed)
@@ -344,7 +344,7 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
           }
           stats::uniroot(ComputeP, c(-searchSizeBeta0, searchSizeBeta0))$root
         }
-        beta0 <- solveForbeta0(preva, betaG, betaE, pG, gammaG)
+        beta0 <- solveForbeta0_add_con(preva, betaG, betaE, pG, gammaG)
         ### Simulate for SE: by averaging B times
         set.seed(seed)
         for (i in 1:B) {
@@ -386,7 +386,7 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
         if((sigmaE^2) <= (gammaG^2) * varG){return(message("Error: SigmaE must be larger to be compatible with other parameters"))}
         sigmaError <- sqrt(sigmaE^2 - (gammaG^2) * varG)
 
-        solveForbeta0 <- function(preva, betaG, betaE, pG, gammaG){
+        solveForbeta0_dom_con <- function(preva, betaG, betaE, pG, gammaG){
           qG <- 1 - pG
           ComputeP <- function(beta0){
             set.seed(seed)
@@ -398,7 +398,7 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
           }
           stats::uniroot(ComputeP, c(-searchSizeBeta0, searchSizeBeta0))$root
         }
-        beta0 <- solveForbeta0(preva, betaG, betaE, pG, gammaG)
+        beta0 <- solveForbeta0_dom_con(preva, betaG, betaE, pG, gammaG)
 
         ### Simulate for SE: by averaging B times
         I <- matrix(data = 0, nrow = 3, ncol = 3)
@@ -441,7 +441,7 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
         if((sigmaE^2) <= (gammaG^2) * qG*pG){return(message("Error: SigmaE must be larger to be compatible with other parameters"))}
         sigmaError <- sqrt(sigmaE^2 - (gammaG^2) * qG*pG)
 
-        solveForbeta0 <- function(preva, betaG, betaE, pG, gammaG){
+        solveForbeta0_rec_con <- function(preva, betaG, betaE, pG, gammaG){
           qG <- 1 - pG
           ComputeP <- function(beta0){
             set.seed(seed)
@@ -453,7 +453,7 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
           }
           stats::uniroot(ComputeP, c(-searchSizeBeta0, searchSizeBeta0))$root
         }
-        beta0 <- solveForbeta0(preva, betaG, betaE, pG, gammaG)
+        beta0 <- solveForbeta0_rec_con(preva, betaG, betaE, pG, gammaG)
 
         ### Simulate for SE: by averaging B times
         I <- matrix(data = 0, nrow = 3, ncol = 3)
@@ -491,7 +491,7 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
         pG <- parameters$pG
         qG <- 1 - pG
         betaG <- parameters$betaG
-        solveForbeta0 <- function(preva, betaG, pG){
+        solveForbeta0_add_non <- function(preva, betaG, pG){
           qG <- 1 - pG
           ComputeP <- function(beta0){
             P <-  (qG^2)*exp(beta0)/(1 + exp(beta0)) + (2*pG*qG)*exp(beta0 + betaG)/(1 + exp(beta0 + betaG)) + (pG^2)*exp(beta0 + 2*betaG)/(1 + exp(beta0 + 2*betaG))
@@ -499,7 +499,7 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
           }
           stats::uniroot(ComputeP, c(-searchSizeBeta0, searchSizeBeta0))$root
         }
-        beta0 <- solveForbeta0(preva, betaG, pG)
+        beta0 <- solveForbeta0_add_non(preva, betaG, pG)
         I <- matrix(data = 0, nrow = 2, ncol = 2)
         set.seed(seed)
         for (i in 1:B) {
@@ -530,7 +530,7 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
         pG <- parameters$pG^2
         qG <- 1 - pG
         betaG <- parameters$betaG
-        solveForbeta0 <- function(preva, betaG, pG){
+        solveForbeta0_rec_non <- function(preva, betaG, pG){
           qG <- 1 - pG
           ComputeP <- function(beta0){
             P <- (pG)*exp(beta0 + betaG)/(1 + exp(beta0 + betaG)) + (qG)*exp(beta0)/(1 + exp(beta0))
@@ -539,7 +539,7 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
           stats::uniroot(ComputeP, c(-searchSizeBeta0, searchSizeBeta0))$root
         }
 
-        beta0 <- solveForbeta0(preva, betaG, pG)
+        beta0 <- solveForbeta0_rec_non(preva, betaG, pG)
         I <- matrix(data = 0, nrow = 2, ncol = 2)
         set.seed(seed)
 
@@ -571,7 +571,7 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
         qG <- (1 - parameters$pG)^2
         pG <- 1 - qG
         betaG <- parameters$betaG
-        solveForbeta0 <- function(preva, betaG, pG){
+        solveForbeta0_dom_non <- function(preva, betaG, pG){
           qG <- 1 - pG
           ComputeP <- function(beta0){
             P <- (pG)*exp(beta0 + betaG)/(1 + exp(beta0 + betaG)) + (qG)*exp(beta0)/(1 + exp(beta0))
@@ -579,7 +579,7 @@ Compute_Power_Sim <- function(parameters, n, B = 10000, response = "binary", cov
           }
           stats::uniroot(ComputeP, c(-searchSizeBeta0, searchSizeBeta0))$root
         }
-        beta0 <- solveForbeta0(preva, betaG, pG)
+        beta0 <- solveForbeta0_dom_non(preva, betaG, pG)
         I <- matrix(data = 0, nrow = 2, ncol = 2)
         set.seed(seed)
 
@@ -1259,7 +1259,7 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
           stats::uniroot(ComputePE, c(-searchSizeGamma0, searchSizeGamma0))$root
         }
         ### Solve for beta0
-        solveForbeta0 <- function(preva, betaG, betaE, pG, pE, gammaG){
+        solveForbeta0_add <- function(preva, betaG, betaE, pG, pE, gammaG){
           qG <- 1 - pG
           gamma0 <- solveForgamma0(pE,gammaG, pG)
           ComputeP <- function(beta0){
@@ -1271,7 +1271,7 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
           stats::uniroot(ComputeP, c(-searchSizeBeta0, searchSizeBeta0))$root
         }
         gamma0 <- solveForgamma0(pE,gammaG, pG)
-        beta0 <- solveForbeta0(preva, betaG, betaE, pG, pE, gammaG)
+        beta0 <- solveForbeta0_add(preva, betaG, betaE, pG, pE, gammaG)
         I <- matrix(data = 0, nrow = 3, ncol = 3)
         set.seed(seed)
         for (i in 1:B) {
@@ -1313,7 +1313,7 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
           stats::uniroot(ComputePE, c(-searchSizeGamma0, searchSizeGamma0))$root
         }
         ### Solve for beta0
-        solveForbeta0 <- function(preva, betaG, betaE, pG, pE, gammaG){
+        solveForbeta0_rec <- function(preva, betaG, betaE, pG, pE, gammaG){
           qG <- 1 - pG
           gamma0 <- solveForgamma0(pE,gammaG, pG)
           ComputeP <- function(beta0){
@@ -1324,7 +1324,7 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
           stats::uniroot(ComputeP, c(-searchSizeBeta0, searchSizeBeta0))$root
         }
         gamma0 <- solveForgamma0(pE,gammaG, pG)
-        beta0 <- solveForbeta0(preva, betaG, betaE, pG, pE, gammaG)
+        beta0 <- solveForbeta0_rec(preva, betaG, betaE, pG, pE, gammaG)
         I <- matrix(data = 0, nrow = 3, ncol = 3)
         set.seed(seed)
         for (i in 1:B) {
@@ -1368,7 +1368,7 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
           stats::uniroot(ComputePE, c(-searchSizeGamma0, searchSizeGamma0))$root
         }
         ### Solve for beta0
-        solveForbeta0 <- function(preva, betaG, betaE, pG, pE, gammaG){
+        solveForbeta0_dom <- function(preva, betaG, betaE, pG, pE, gammaG){
           qG <- 1 - pG
           gamma0 <- solveForgamma0(pE,gammaG, pG)
           ComputeP <- function(beta0){
@@ -1379,7 +1379,7 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
           stats::uniroot(ComputeP, c(-searchSizeBeta0, searchSizeBeta0))$root
         }
         gamma0 <- solveForgamma0(pE,gammaG, pG)
-        beta0 <- solveForbeta0(preva, betaG, betaE, pG, pE, gammaG)
+        beta0 <- solveForbeta0_dom(preva, betaG, betaE, pG, pE, gammaG)
         I <- matrix(data = 0, nrow = 3, ncol = 3)
         set.seed(seed)
 
@@ -1430,7 +1430,7 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
         if((sigmaE^2) <= (gammaG^2) * varG){return(message("Error: SigmaE must be larger to be compatible with other parameters"))}
         sigmaError <- sqrt(sigmaE^2 - (gammaG^2) * varG)
 
-        solveForbeta0 <- function(preva, betaG, betaE, pG, gammaG){
+        solveForbeta0_add_con <- function(preva, betaG, betaE, pG, gammaG){
           qG <- 1 - pG
           ComputeP <- function(beta0){
             set.seed(seed)
@@ -1442,7 +1442,7 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
           }
           stats::uniroot(ComputeP, c(-searchSizeBeta0, searchSizeBeta0))$root
         }
-        beta0 <- solveForbeta0(preva, betaG, betaE, pG, gammaG)
+        beta0 <- solveForbeta0_add_con(preva, betaG, betaE, pG, gammaG)
         ### Simulate for SE: by averaging B times
         set.seed(seed)
         for (i in 1:B) {
@@ -1485,7 +1485,7 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
         if((sigmaE^2) <= (gammaG^2) * varG){return(message("Error: SigmaE must be larger to be compatible with other parameters"))}
         sigmaError <- sqrt(sigmaE^2 - (gammaG^2) * varG)
 
-        solveForbeta0 <- function(preva, betaG, betaE, pG, gammaG){
+        solveForbeta0_dom_con <- function(preva, betaG, betaE, pG, gammaG){
           qG <- 1 - pG
           ComputeP <- function(beta0){
             set.seed(seed)
@@ -1497,7 +1497,7 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
           }
           stats::uniroot(ComputeP, c(-searchSizeBeta0, searchSizeBeta0))$root
         }
-        beta0 <- solveForbeta0(preva, betaG, betaE, pG, gammaG)
+        beta0 <- solveForbeta0_dom_con(preva, betaG, betaE, pG, gammaG)
 
         ### Simulate for SE: by averaging B times
         I <- matrix(data = 0, nrow = 3, ncol = 3)
@@ -1540,7 +1540,7 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
         if((sigmaE^2) <= (gammaG^2) * qG*pG){return(message("Error: SigmaE must be larger to be compatible with other parameters"))}
         sigmaError <- sqrt(sigmaE^2 - (gammaG^2) * qG*pG)
 
-        solveForbeta0 <- function(preva, betaG, betaE, pG, gammaG){
+        solveForbeta0_rec_con <- function(preva, betaG, betaE, pG, gammaG){
           qG <- 1 - pG
           ComputeP <- function(beta0){
             set.seed(seed)
@@ -1552,7 +1552,7 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
           }
           stats::uniroot(ComputeP, c(-searchSizeBeta0, searchSizeBeta0))$root
         }
-        beta0 <- solveForbeta0(preva, betaG, betaE, pG, gammaG)
+        beta0 <- solveForbeta0_rec_con(preva, betaG, betaE, pG, gammaG)
 
         ### Simulate for SE: by averaging B times
         I <- matrix(data = 0, nrow = 3, ncol = 3)
@@ -1590,7 +1590,7 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
         pG <- parameters$pG
         qG <- 1 - pG
         betaG <- parameters$betaG
-        solveForbeta0 <- function(preva, betaG, pG){
+        solveForbeta0_add_non <- function(preva, betaG, pG){
           qG <- 1 - pG
           ComputeP <- function(beta0){
             P <-  (qG^2)*exp(beta0)/(1 + exp(beta0)) + (2*pG*qG)*exp(beta0 + betaG)/(1 + exp(beta0 + betaG)) + (pG^2)*exp(beta0 + 2*betaG)/(1 + exp(beta0 + 2*betaG))
@@ -1598,7 +1598,7 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
           }
           stats::uniroot(ComputeP, c(-searchSizeBeta0, searchSizeBeta0))$root
         }
-        beta0 <- solveForbeta0(preva, betaG, pG)
+        beta0 <- solveForbeta0_add_non(preva, betaG, pG)
         I <- matrix(data = 0, nrow = 2, ncol = 2)
         set.seed(seed)
         for (i in 1:B) {
@@ -1629,7 +1629,7 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
         pG <- parameters$pG^2
         qG <- 1 - pG
         betaG <- parameters$betaG
-        solveForbeta0 <- function(preva, betaG, pG){
+        solveForbeta0_rec_non <- function(preva, betaG, pG){
           qG <- 1 - pG
           ComputeP <- function(beta0){
             P <- (pG)*exp(beta0 + betaG)/(1 + exp(beta0 + betaG)) + (qG)*exp(beta0)/(1 + exp(beta0))
@@ -1638,7 +1638,7 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
           stats::uniroot(ComputeP, c(-searchSizeBeta0, searchSizeBeta0))$root
         }
 
-        beta0 <- solveForbeta0(preva, betaG, pG)
+        beta0 <- solveForbeta0_rec_non(preva, betaG, pG)
         I <- matrix(data = 0, nrow = 2, ncol = 2)
         set.seed(seed)
 
@@ -1670,7 +1670,7 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
         qG <- (1 - parameters$pG)^2
         pG <- 1 - qG
         betaG <- parameters$betaG
-        solveForbeta0 <- function(preva, betaG, pG){
+        solveForbeta0_dom_non <- function(preva, betaG, pG){
           qG <- 1 - pG
           ComputeP <- function(beta0){
             P <- (pG)*exp(beta0 + betaG)/(1 + exp(beta0 + betaG)) + (qG)*exp(beta0)/(1 + exp(beta0))
@@ -1678,7 +1678,7 @@ Compute_Size_Sim <- function(parameters, PowerAim, B = 10000, response = "binary
           }
           stats::uniroot(ComputeP, c(-searchSizeBeta0, searchSizeBeta0))$root
         }
-        beta0 <- solveForbeta0(preva, betaG, pG)
+        beta0 <- solveForbeta0_dom_non(preva, betaG, pG)
         I <- matrix(data = 0, nrow = 2, ncol = 2)
         set.seed(seed)
 
@@ -2354,7 +2354,7 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
           stats::uniroot(ComputePE, c(-searchSizeGamma0, searchSizeGamma0))$root
         }
         ### Solve for beta0
-        solveForbeta0 <- function(preva, betaG, betaE, pG, pE, gammaG){
+        solveForbeta0_add <- function(preva, betaG, betaE, pG, pE, gammaG){
           qG <- 1 - pG
           gamma0 <- solveForgamma0(pE,gammaG, pG)
           ComputeP <- function(beta0){
@@ -2366,7 +2366,7 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
           stats::uniroot(ComputeP, c(-searchSizeBeta0, searchSizeBeta0))$root
         }
         gamma0 <- solveForgamma0(pE,gammaG, pG)
-        beta0 <- solveForbeta0(preva, betaG, betaE, pG, pE, gammaG)
+        beta0 <- solveForbeta0_add(preva, betaG, betaE, pG, pE, gammaG)
         I <- matrix(data = 0, nrow = 3, ncol = 3)
         set.seed(seed)
         count_vec <- c(floor(pG^2 * n), floor(2*qG*pG * n), (n - floor(pG^2 * n) - floor(2*qG*pG * n)), floor(floor(pG^2 * n) * ComputeEgivenG(gamma0,gammaG,2, E = 1)), (floor(pG^2 * n) - floor(floor(pG^2 * n) * ComputeEgivenG(gamma0,gammaG,2, E = 1))), floor(floor(2*qG*pG * n) * ComputeEgivenG(gamma0,gammaG,1, E = 1)), (floor(2*qG*pG * n) - floor(floor(2*qG*pG * n) * ComputeEgivenG(gamma0,gammaG,1, E = 1))), floor((n - floor(pG^2 * n) - floor(2*qG*pG * n)) * ComputeEgivenG(gamma0,gammaG,0, E = 1)), ((n - floor(pG^2 * n) -
@@ -2412,7 +2412,7 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
           stats::uniroot(ComputePE, c(-searchSizeGamma0, searchSizeGamma0))$root
         }
         ### Solve for beta0
-        solveForbeta0 <- function(preva, betaG, betaE, pG, pE, gammaG){
+        solveForbeta0_rec <- function(preva, betaG, betaE, pG, pE, gammaG){
           qG <- 1 - pG
           gamma0 <- solveForgamma0(pE,gammaG, pG)
           ComputeP <- function(beta0){
@@ -2423,7 +2423,7 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
           stats::uniroot(ComputeP, c(-searchSizeBeta0, searchSizeBeta0))$root
         }
         gamma0 <- solveForgamma0(pE,gammaG, pG)
-        beta0 <- solveForbeta0(preva, betaG, betaE, pG, pE, gammaG)
+        beta0 <- solveForbeta0_rec(preva, betaG, betaE, pG, pE, gammaG)
         I <- matrix(data = 0, nrow = 3, ncol = 3)
         set.seed(seed)
         count_vec <- c(floor(pG * n), (n - floor(pG * n)), floor(floor(pG * n) * ComputeEgivenG(gamma0,gammaG,1, E = 1)), (floor(pG * n) - floor(floor(pG * n) * ComputeEgivenG(gamma0,gammaG,1, E = 1))),  floor((n - floor(pG * n)) * ComputeEgivenG(gamma0,gammaG,0, E = 1))   ,  ((n - floor(pG * n)) - floor((n - floor(pG * n)) * ComputeEgivenG(gamma0,gammaG,0, E = 1))))
@@ -2467,7 +2467,7 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
           stats::uniroot(ComputePE, c(-searchSizeGamma0, searchSizeGamma0))$root
         }
         ### Solve for beta0
-        solveForbeta0 <- function(preva, betaG, betaE, pG, pE, gammaG){
+        solveForbeta0_dom <- function(preva, betaG, betaE, pG, pE, gammaG){
           qG <- 1 - pG
           gamma0 <- solveForgamma0(pE,gammaG, pG)
           ComputeP <- function(beta0){
@@ -2478,7 +2478,7 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
           stats::uniroot(ComputeP, c(-searchSizeBeta0, searchSizeBeta0))$root
         }
         gamma0 <- solveForgamma0(pE,gammaG, pG)
-        beta0 <- solveForbeta0(preva, betaG, betaE, pG, pE, gammaG)
+        beta0 <- solveForbeta0_dom(preva, betaG, betaE, pG, pE, gammaG)
         set.seed(seed)
         count_vec <- c(floor(pG * n), (n - floor(pG * n)), floor(floor(pG * n) * ComputeEgivenG(gamma0,gammaG,1, E = 1)), (floor(pG * n) - floor(floor(pG * n) * ComputeEgivenG(gamma0,gammaG,1, E = 1))),  floor((n - floor(pG * n)) * ComputeEgivenG(gamma0,gammaG,0, E = 1))   ,  ((n - floor(pG * n)) - floor((n - floor(pG * n)) * ComputeEgivenG(gamma0,gammaG,0, E = 1))))
         if(min(count_vec) <= 0){return("Error: sample size is too small to apply the data augmentation, try the alternative method.")}
@@ -2529,7 +2529,7 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
         I <- matrix(data = 0, nrow = 3, ncol = 3)
         if((sigmaE^2) <= (gammaG^2) * varG){return(message("Error: SigmaE must be larger to be compatible with other parameters"))}
         sigmaError <- sqrt(sigmaE^2 - (gammaG^2) * varG)
-        solveForbeta0 <- function(preva, betaG, betaE, pG, gammaG){
+        solveForbeta0_add_con <- function(preva, betaG, betaE, pG, gammaG){
           qG <- 1 - pG
           ComputeP <- function(beta0){
             set.seed(seed)
@@ -2541,7 +2541,7 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
           }
           stats::uniroot(ComputeP, c(-searchSizeBeta0, searchSizeBeta0))$root
         }
-        beta0 <- solveForbeta0(preva, betaG, betaE, pG, gammaG)
+        beta0 <- solveForbeta0_add_con(preva, betaG, betaE, pG, gammaG)
 
         if(floor(pG^2 * n) <= 1 | floor(2*qG*pG * n) <= 1 | (n - floor(pG^2 * n) - floor(2*qG*pG * n)) <= 1) {return(message("The sample size is not large enough to apply this method. Consider the alternative method based on semi-simulation."))}
 
@@ -2593,7 +2593,7 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
         if((sigmaE^2) <= (gammaG^2) * varG){return(message("Error: SigmaE must be larger to be compatible with other parameters"))}
         sigmaError <- sqrt(sigmaE^2 - (gammaG^2) * varG)
 
-        solveForbeta0 <- function(preva, betaG, betaE, pG, gammaG){
+        solveForbeta0_dom_con <- function(preva, betaG, betaE, pG, gammaG){
           qG <- 1 - pG
           ComputeP <- function(beta0){
             set.seed(seed)
@@ -2605,7 +2605,7 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
           }
           stats::uniroot(ComputeP, c(-searchSizeBeta0, searchSizeBeta0))$root
         }
-        beta0 <- solveForbeta0(preva, betaG, betaE, pG, gammaG)
+        beta0 <- solveForbeta0_dom_con(preva, betaG, betaE, pG, gammaG)
 
         if(floor(pG * n) <= 1 | (n - floor(pG * n)) <=1) {return(message("The sample size is not large enough to apply this method. Consider the alternative method based on semi-simulation."))}
 
@@ -2656,7 +2656,7 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
         if((sigmaE^2) <= (gammaG^2) * qG*pG){return(message("Error: SigmaE must be larger to be compatible with other parameters"))}
         sigmaError <- sqrt(sigmaE^2 - (gammaG^2) * qG*pG)
 
-        solveForbeta0 <- function(preva, betaG, betaE, pG, gammaG){
+        solveForbeta0_rec_con <- function(preva, betaG, betaE, pG, gammaG){
           qG <- 1 - pG
           ComputeP <- function(beta0){
             set.seed(seed)
@@ -2668,7 +2668,7 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
           }
           stats::uniroot(ComputeP, c(-searchSizeBeta0, searchSizeBeta0))$root
         }
-        beta0 <- solveForbeta0(preva, betaG, betaE, pG, gammaG)
+        beta0 <- solveForbeta0_rec_con(preva, betaG, betaE, pG, gammaG)
 
         if(floor(pG * n) <= 1 | (n - floor(pG * n)) <=1) {return(message("The sample size is not large enough to apply this method. Consider the alternative method based on semi-simulation."))}
 
@@ -2716,7 +2716,7 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
         pG <- parameters$pG
         qG <- 1 - pG
         betaG <- parameters$betaG
-        solveForbeta0 <- function(preva, betaG, pG){
+        solveForbeta0_add_non <- function(preva, betaG, pG){
           qG <- 1 - pG
           ComputeP <- function(beta0){
             P <-  (qG^2)*exp(beta0)/(1 + exp(beta0)) + (2*pG*qG)*exp(beta0 + betaG)/(1 + exp(beta0 + betaG)) + (pG^2)*exp(beta0 + 2*betaG)/(1 + exp(beta0 + 2*betaG))
@@ -2724,7 +2724,7 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
           }
           stats::uniroot(ComputeP, c(-searchSizeBeta0, searchSizeBeta0))$root
         }
-        beta0 <- solveForbeta0(preva, betaG, pG)
+        beta0 <- solveForbeta0_add_non(preva, betaG, pG)
         if(floor(pG^2 * n) <= 1 | floor(2*qG*pG * n) <= 1 | (n - floor(pG^2 * n) - floor(2*qG*pG * n)) <= 1) {return(message("The sample size is not large enough to apply this method. Consider the alternative method based on semi-simulation."))}
 
         G <- c(rep(2,floor(pG^2 * n)), rep(1,floor(2*qG*pG * n)), rep(0, (n - floor(pG^2 * n) - floor(2*qG*pG * n))))
@@ -2750,7 +2750,7 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
         pG <- parameters$pG^2
         qG <- 1 - pG
         betaG <- parameters$betaG
-        solveForbeta0 <- function(preva, betaG, pG){
+        solveForbeta0_rec_non <- function(preva, betaG, pG){
           qG <- 1 - pG
           ComputeP <- function(beta0){
             P <- (pG)*exp(beta0 + betaG)/(1 + exp(beta0 + betaG)) + (qG)*exp(beta0)/(1 + exp(beta0))
@@ -2759,7 +2759,7 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
           stats::uniroot(ComputeP, c(-searchSizeBeta0, searchSizeBeta0))$root
         }
 
-        beta0 <- solveForbeta0(preva, betaG, pG)
+        beta0 <- solveForbeta0_rec_non(preva, betaG, pG)
         if(floor(pG * n) <= 1 | (n - floor(pG * n)) <=1) {return(message("The sample size is not large enough to apply this method. Consider the alternative method based on semi-simulation."))}
 
         G <- c(rep(1,floor(pG * n)), rep(0, (n - floor(pG * n))))
@@ -2785,7 +2785,7 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
         qG <- (1 - parameters$pG)^2
         pG <- 1 - qG
         betaG <- parameters$betaG
-        solveForbeta0 <- function(preva, betaG, pG){
+        solveForbeta0_dom_non <- function(preva, betaG, pG){
           qG <- 1 - pG
           ComputeP <- function(beta0){
             P <- (pG)*exp(beta0 + betaG)/(1 + exp(beta0 + betaG)) + (qG)*exp(beta0)/(1 + exp(beta0))
@@ -2793,7 +2793,7 @@ Compute_Power_Expanded <- function(parameters, n, response = "binary", covariate
           }
           stats::uniroot(ComputeP, c(-searchSizeBeta0, searchSizeBeta0))$root
         }
-        beta0 <- solveForbeta0(preva, betaG, pG)
+        beta0 <- solveForbeta0_dom_non(preva, betaG, pG)
         if(floor(pG * n) <= 1 | (n - floor(pG * n)) <=1) {return(message("The sample size is not large enough to apply this method. Consider the alternative method based on semi-simulation."))}
 
         G <- c(rep(1,floor(pG * n)), rep(0, (n - floor(pG * n))))
