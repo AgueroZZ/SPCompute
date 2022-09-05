@@ -2,7 +2,7 @@
 % Please edit documentation in R/04_wrapper.R
 \name{Compute_Power_multi}
 \alias{Compute_Power_multi}
-\title{Compute the Power of an association study at a given sample size, accomodating more than one covariates, using the Semi-Simulation method.}
+\title{Compute the Power of an association study at a given sample size, accommodating more than one covariates, using the Semi-Simulation method.}
 \usage{
 Compute_Power_multi(
   parameters,
@@ -47,7 +47,7 @@ its mean and standard deviation. The MAF is defined as "pG", with HWE assumed to
 The power that can be achieved at the given sample size.
 }
 \description{
-Compute the Power of an association study at a given sample size, accomodating more than one covariates, using the Semi-Simulation method.
+Compute the Power of an association study at a given sample size, accommodating more than one covariates, using the Semi-Simulation method.
 }
 \examples{
 parameters <- list(TraitMean = 0.3, TraitSD = 1, pG = 0.2, betaG = log(1.1),
