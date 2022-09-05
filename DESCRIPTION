@@ -2,8 +2,8 @@ Type: Package
 Package: SPCompute
 Title: Compute Power or Sample Size for GWAS with
     Covariate Effect
-Version: 1.0.1
-Author: Ziang Zhang
+Version: 1.0.2
+Author: Ziang Zhang, Lei Sun
 Maintainer: Ziang Zhang <aguero.zhang@mail.utoronto.ca>
 Description: Fast computation of the required sample size or the
     achieved power, for GWAS studies with different types of covariate

@@ -292,7 +292,7 @@ Compute_Power_Emp_BCC <- function(n, B = 10000, parameters, mode = "additive", a
       E2 <- gamma02 + gammaG2*G + stats::rnorm(n,sd = sigmaError2)
       y <- beta0 + betaG * G + betaE1 * E1 + betaE2 * E2 + stats::rlogis(n)
       y <- ifelse(y > 0, 1, 0)
-      correct[i] <- summary(glm(y~G + E1 + E2, family = binomial("logit")))$coefficients[2,4] <= alpha
+      correct[i] <- summary(stats::glm(y~G + E1 + E2, family = stats::binomial("logit")))$coefficients[2,4] <= alpha
     }
     Power <- sum(correct)/B
   }
@@ -344,7 +344,7 @@ Compute_Power_Emp_BCC <- function(n, B = 10000, parameters, mode = "additive", a
       E2 <- gamma02 + gammaG2*G + stats::rnorm(n,sd = sigmaError2)
       y <- beta0 + betaG * G + betaE1 * E1 + betaE2 * E2 + stats::rlogis(n)
       y <- ifelse(y > 0, 1, 0)
-      correct[i] <- summary(glm(y~G + E1 + E2, family = binomial("logit")))$coefficients[2,4] <= alpha
+      correct[i] <- summary(stats::glm(y~G + E1 + E2, family = stats::binomial("logit")))$coefficients[2,4] <= alpha
     }
     Power <- sum(correct)/B
 
@@ -398,7 +398,7 @@ Compute_Power_Emp_BCC <- function(n, B = 10000, parameters, mode = "additive", a
       E2 <- gamma02 + gammaG2*G + stats::rnorm(n,sd = sigmaError2)
       y <- beta0 + betaG * G + betaE1 * E1 + betaE2 * E2 + stats::rlogis(n)
       y <- ifelse(y > 0, 1, 0)
-      correct[i] <- summary(glm(y~G + E1 + E2, family = binomial("logit")))$coefficients[2,4] <= alpha
+      correct[i] <- summary(stats::glm(y~G + E1 + E2, family = stats::binomial("logit")))$coefficients[2,4] <= alpha
     }
     Power <- sum(correct)/B
   }
@@ -748,7 +748,7 @@ Compute_Power_Emp_BBB <- function(n, B = 10000, parameters, mode = "additive", a
       E2 <- ifelse(E2 >= 0, 1, 0)
       y <- beta0 + betaG * G + betaE1 * E1 + betaE2 * E2 + stats::rlogis(n)
       y <- ifelse(y > 0, 1, 0)
-      correct[i] <- summary(glm(y~ G + E1 + E2, family = binomial("logit")))$coefficients[2,4] <= alpha
+      correct[i] <- summary(stats::glm(y~ G + E1 + E2, family = stats::binomial("logit")))$coefficients[2,4] <= alpha
     }
     Power <- sum(correct)/B
   }
@@ -806,7 +806,7 @@ Compute_Power_Emp_BBB <- function(n, B = 10000, parameters, mode = "additive", a
       E2 <- ifelse(E2 >= 0, 1, 0)
       y <- beta0 + betaG * G + betaE1 * E1 + betaE2 * E2 + stats::rlogis(n)
       y <- ifelse(y > 0, 1, 0)
-      correct[i] <- summary(glm(y~ G + E1 + E2, family = binomial("logit")))$coefficients[2,4] <= alpha
+      correct[i] <- summary(stats::glm(y~ G + E1 + E2, family = stats::binomial("logit")))$coefficients[2,4] <= alpha
     }
     Power <- sum(correct)/B
   }
@@ -864,7 +864,7 @@ Compute_Power_Emp_BBB <- function(n, B = 10000, parameters, mode = "additive", a
       E2 <- ifelse(E2 >= 0, 1, 0)
       y <- beta0 + betaG * G + betaE1 * E1 + betaE2 * E2 + stats::rlogis(n)
       y <- ifelse(y > 0, 1, 0)
-      correct[i] <- summary(glm(y~ G + E1 + E2, family = binomial("logit")))$coefficients[2,4] <= alpha
+      correct[i] <- summary(stats::glm(y~ G + E1 + E2, family = stats::binomial("logit")))$coefficients[2,4] <= alpha
     }
     Power <- sum(correct)/B
   }
@@ -1218,7 +1218,7 @@ Compute_Power_Emp_BBC <- function(n, B = 10000, parameters, mode = "additive", a
       E2 <- gamma02 + gammaG2*G + stats::rnorm(n,sd = sigmaError)
       y <- beta0 + betaE1 * E1 + betaE2 * E2 + betaG * G + stats::rlogis(n)
       y <- ifelse(y > 0, 1, 0)
-      correct[i] <- summary(glm(y~ G + E1 + E2, family = binomial("logit")))$coefficients[2,4] <= alpha
+      correct[i] <- summary(stats::glm(y~ G + E1 + E2, family = stats::binomial("logit")))$coefficients[2,4] <= alpha
     }
     Power <- sum(correct)/B
   }
@@ -1279,7 +1279,7 @@ Compute_Power_Emp_BBC <- function(n, B = 10000, parameters, mode = "additive", a
       E2 <- gamma02 + gammaG2*G + stats::rnorm(n,sd = sigmaError)
       y <- beta0 + betaE1 * E1 + betaE2 * E2 + betaG * G + stats::rlogis(n)
       y <- ifelse(y > 0, 1, 0)
-      correct[i] <- summary(glm(y~ G + E1 + E2, family = binomial("logit")))$coefficients[2,4] <= alpha
+      correct[i] <- summary(stats::glm(y~ G + E1 + E2, family = stats::binomial("logit")))$coefficients[2,4] <= alpha
     }
     Power <- sum(correct)/B
   }
@@ -1340,7 +1340,7 @@ Compute_Power_Emp_BBC <- function(n, B = 10000, parameters, mode = "additive", a
       E2 <- gamma02 + gammaG2*G + stats::rnorm(n,sd = sigmaError)
       y <- beta0 + betaE1 * E1 + betaE2 * E2 + betaG * G + stats::rlogis(n)
       y <- ifelse(y > 0, 1, 0)
-      correct[i] <- summary(glm(y~ G + E1 + E2, family = binomial("logit")))$coefficients[2,4] <= alpha
+      correct[i] <- summary(stats::glm(y~ G + E1 + E2, family = stats::binomial("logit")))$coefficients[2,4] <= alpha
     }
     Power <- sum(correct)/B
 }
